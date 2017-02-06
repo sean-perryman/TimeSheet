@@ -1,13 +1,24 @@
 <?php 
-  require_once('dblink.php');
-  require_once('utility.php');
+  require('dblink.php');
+  require('utility.php');
   if ( is_session_started() === FALSE ) session_start();
 
   //Process access_code to user_id
   if (isset($_POST)) {
 
-    if (isset($_POST['accesscode'])) {
-      $_SESSION['user_id'] = "Sean";
+    if (isset($_POST['accesscode'])) { //Test if Access Code is set, pull user data or return error
+      
+      $code = mysqli_real_escape_string( $link, $_POST['accesscode']);
+
+      $result = mysqli_query( $link, "SELECT * FROM employees WHERE access_code = $code" );
+      $row = mysqli_fetch_assoc($result);
+      if (!$row) {
+        echo "<script>alert('Error - user does not exist');</script>";
+      } else {
+        var_dump($row);
+        $_SESSION['user_id'] = $row['name'];
+        echo "<script>alert('Session:" . $_SESSION['user_id'] . "\nScrubbed Data: " . $code . "\n Pre-Scrub: " . $_POST['accesscode'] . " ');</script>";
+      }
     } elseif ($_POST['log_out'] === "true") {
       unset($_SESSION['user_id']);
     }
@@ -52,7 +63,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Project name</a>
+          <a class="navbar-brand" href="#">Time Sheet</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
 
@@ -65,7 +76,7 @@
             <button type="submit" class="btn btn-success">Sign in</button>
             <?php } else { ?>
               <div class="form-group">
-                <label>Hello, <?php $_SESSION['user_id']; ?>!</label>
+                <label class="text-primary">Signed in as <?php echo $_SESSION['user_id']; ?></label>
                 <input type="hidden" name="log_out" value="true">
               </div>
               <button type="submit" class="btn btn-success">Sign in</button>
@@ -77,7 +88,11 @@
     </nav>
 
     <div class="container">
-      fart
+      <?php
+        if ($_SESSION['user_id']) {
+
+        }
+      ?>
     </div> <!-- /container -->        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
 
