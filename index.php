@@ -5,22 +5,21 @@
 
   //Process access_code to user_id
   if (isset($_POST)) {
-
     if (isset($_POST['accesscode'])) { //Test if Access Code is set, pull user data or return error
-      
       $code = mysqli_real_escape_string( $link, $_POST['accesscode']);
 
       $result = mysqli_query( $link, "SELECT * FROM employees WHERE access_code = $code" );
       $row = mysqli_fetch_assoc($result);
       if (!$row) {
-        echo "<script>alert('Error - user does not exist');</script>";
-      } else {
-        var_dump($row);
-        $_SESSION['user_id'] = $row['name'];
-        echo "<script>alert('Session:" . $_SESSION['user_id'] . "\nScrubbed Data: " . $code . "\n Pre-Scrub: " . $_POST['accesscode'] . " ');</script>";
+        echo "<h3 class='alert-danger well'>Error - user does not exist</h3>";
+      } else { //User has authenticated
+        $_SESSION['user_id'] = $row['id'];
+        $_SESSION['name'] = $row['name'];
+        $user_id = $_SESSION['user_id'];
       }
     } elseif ($_POST['log_out'] === "true") {
       unset($_SESSION['user_id']);
+      unset($_SESSION['name']);
     }
   }
 ?>
@@ -73,13 +72,13 @@
             <div class="form-group">
               <input type="password" name="accesscode" placeholder="Access Code" class="form-control">
             </div>
-            <button type="submit" class="btn btn-success">Sign in</button>
+            <button type="submit" class="btn btn-sm btn-success">Sign in</button>
             <?php } else { ?>
               <div class="form-group">
-                <label class="text-primary">Signed in as <?php echo $_SESSION['user_id']; ?></label>
+                <label class="text-primary">Signed in as <?php echo $_SESSION['name']; ?></label>
                 <input type="hidden" name="log_out" value="true">
               </div>
-              <button type="submit" class="btn btn-success">Sign in</button>
+              <button type="submit" class="btn btn-sm btn-success">Sign Out</button>
             <?php } ?>
           </form>
           
@@ -90,7 +89,38 @@
     <div class="container">
       <?php
         if ($_SESSION['user_id']) {
-
+          $user_id = $_SESSION['user_id'];
+          $result = mysqli_query( $link, "SELECT * FROM timeentry WHERE employee_id = $user_id" );
+          if (mysqli_num_rows( $result ) == 0) echo "<p>No time entries found.</p>";
+          else {
+            $total_hours = 0; ?>
+            <table class='table well'>
+              <tr>
+                <th>Date</th>
+                <th>Site Name</th>
+                <th>Job Code</th>
+                <th>Description</th>
+                <th>Hours</th>
+              </tr>
+            <?php while ($row = mysqli_fetch_assoc($result)) {
+              echo "<tr><td>";
+              echo $row['date'];
+              echo "</td><td>";
+              echo find_site_name( $row['client_id'] );
+              echo "</td><td>";
+              echo $row['job_code'];
+              echo "</td><td>";
+              echo substr($row['description'], 0, 32);
+              echo "</td><td>";
+              echo $row['hours'];
+              echo "</td>";
+              echo '<td><button id="detail-' . $row['id'] . '" class="btn btn-sm btn-info">Detail</button>';
+              echo "</td></tr>";
+              $total_hours += $row['hours'];
+            }
+            echo "</table>";
+            echo "Total Hours: " . $total_hours;
+          }
         }
       ?>
     </div> <!-- /container -->        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
