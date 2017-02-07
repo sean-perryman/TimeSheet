@@ -15,11 +15,10 @@
       } else { //User has authenticated
         $_SESSION['user_id'] = $row['id'];
         $_SESSION['name'] = $row['name'];
-        $user_id = $_SESSION['user_id'];
+        if ($row['admin']) $_SESSION['admin'] = true;
       }
     } elseif ($_POST['log_out'] === "true") {
-      unset($_SESSION['user_id']);
-      unset($_SESSION['name']);
+      session_unset();
     }
   }
 ?>
@@ -88,39 +87,113 @@
 
     <div class="container">
       <?php
-        if ($_SESSION['user_id']) {
-          $user_id = $_SESSION['user_id'];
-          $result = mysqli_query( $link, "SELECT * FROM timeentry WHERE employee_id = $user_id" );
-          if (mysqli_num_rows( $result ) == 0) echo "<p>No time entries found.</p>";
-          else {
-            $total_hours = 0; ?>
-            <table class='table well'>
-              <tr>
-                <th>Date</th>
-                <th>Site Name</th>
-                <th>Job Code</th>
-                <th>Description</th>
-                <th>Hours</th>
-              </tr>
-            <?php while ($row = mysqli_fetch_assoc($result)) {
-              echo "<tr><td>";
-              echo $row['date'];
-              echo "</td><td>";
-              echo find_site_name( $row['client_id'] );
-              echo "</td><td>";
-              echo $row['job_code'];
-              echo "</td><td>";
-              echo substr($row['description'], 0, 32);
-              echo "</td><td>";
-              echo $row['hours'];
-              echo "</td>";
-              echo '<td><button id="detail-' . $row['id'] . '" class="btn btn-sm btn-info">Detail</button>';
-              echo "</td></tr>";
-              $total_hours += $row['hours'];
+        if ($_SESSION['user_id']) { // User is logged in
+
+          //Non-Admin User - Displays all of their time entries
+          if (!$_SESSION['admin']) {        
+            $user_id = $_SESSION['user_id'];
+            $result = mysqli_query( $link, "SELECT * FROM timeentry WHERE employee_id = $user_id" );
+            if (mysqli_num_rows( $result ) == 0) echo "<p>No time entries found.</p>";
+            else {
+              $total_hours = 0; ?>
+              <table class='table well'>
+                <tr>
+                  <th>Date</th>
+                  <th>Site Name</th>
+                  <th>Job Code</th>
+                  <th>Description</th>
+                  <th>Hours</th>
+                </tr>
+              <?php while ($row = mysqli_fetch_assoc($result)) {
+                echo "<tr><td>";
+                echo $row['date'];
+                echo "</td><td>";
+                echo get_client( $row['client_id'] );
+                echo "</td><td>";
+                echo get_job_code($row['job_code']);
+                echo "</td><td>";
+                echo substr($row['description'], 0, 32);
+                echo "</td><td>";
+                echo $row['hours'];
+                echo "</td>";
+                echo '<td><button id="te-detail-' . $row['id'] . '" class="btn btn-sm btn-info">Detail</button>';
+                echo "</td></tr>";
+                $total_hours += $row['hours'];
+              }
+              echo "</table>";
+              echo "Total Hours: " . $total_hours;
             }
-            echo "</table>";
-            echo "Total Hours: " . $total_hours;
-          }
+          
+          //} else {//End non-admin user ?>
+              <div class="well"> <!-- Time Entries-->
+                <?php $timeentries = get_time_entry(""); ?>
+                <h2>Time Entries</h2>
+                <table class='table'>
+
+                  <tr>
+                    <th>Date</th>
+                    <th>Site Name</th>
+                    <th>Job Code</th>
+                    <th>Description</th>
+                    <th>Hours</th>
+                    <th></th>
+                  </tr>
+                  <?php for ($i = 0; $i < count($timeentries); $i++) {
+                    echo "<tr><td>";
+                    echo $timeentries[$i]['date'];
+                    echo "</td><td>";
+                    echo get_client( $timeentries[$i]['client_id'] );
+                    echo "</td><td>";
+                    echo get_job_code($timeentries[$i]['job_code']);
+                    echo "</td><td>";
+                    echo substr($timeentries[$i]['description'], 0, 32);
+                    echo "</td><td>";
+                    echo $timeentries[$i]['hours'];
+                    echo "</td>";
+                    echo '<td><button id="te-detail-' . $timeentries[$i]['id'] . '" class="btn btn-sm btn-info">Detail</button></td>';
+                    echo "</tr>";             
+                  } ?>
+                </table>
+              </div>
+
+              <div class="well">  <!-- Employees -->
+                <h2>Employees</h2>
+                <div class="well"> <!-- Time Entries-->
+                <?php $employees = get_employee(""); ?>
+                <table class='table'>
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone Number</th>
+                    <th>Email Address</th>
+                    <th>Access Code</th>
+                    <th></th>
+                  </tr>
+                  <?php for ($j = 0; $j < count($employees); $j++) {
+                    echo "<tr><td>";
+                    echo $employees[$j]['name'];
+                    echo "</td><td>";
+                    echo $employees[$j]['phone'];
+                    echo "</td><td>";
+                    echo $employees[$j]['email'];
+                    echo "</td><td>";
+                    echo $employees[$j]['access_code'];
+                    echo "</td>";
+                    echo '<td><button id="emp-detail-' . $employees[$j]['id'] . '" class="btn btn-sm btn-info">Detail</button></td>';
+                    echo "</tr>";             
+                  } ?>
+                </table>
+              </div>
+              </div>
+              <div class="well">  <!-- Job Codes -->
+                <h2>Job Codes</h2>
+                <?php echo get_job_code(""); ?>
+              </div>
+              <div class="well">  <!-- Clients -->
+                <h2>Clients</h2>
+                <?php echo get_client(""); ?>
+              </div>
+          <?php }
+
         }
       ?>
     </div> <!-- /container -->        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
