@@ -1,5 +1,4 @@
 <?php
-	
 	// Check for session
 	function is_session_started() {
     if ( php_sapi_name() !== 'cli' ) {
@@ -12,8 +11,19 @@
     return FALSE;
 	}
 
+	if (isset($_POST['action'])) {
+    switch ($_POST['action']) {
+      case 'add_client':
+        add_client("test site 3107");
+        break;
+      case 'select':
+        select();
+        break;
+    }
+	}	
+
 	function get_employee( $id ) {
-		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		global $link;
 		if ( $id == "" ) {
 			$result = mysqli_query( $link, "SELECT * FROM employees" );
 		} else {
@@ -25,17 +35,15 @@
     	return mysqli_fetch_assoc($result);
     } else { 
     	$data = array();  
-    	$data[] = array();
       while ($row = mysqli_fetch_assoc($result)) {
       	$data[] = $row;
       }
       return $data;
     }
-    mysqli_close( $link );
 	}
 
 	function get_client( $id ) {
-		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		global $link;
 		if ( $id == "" ) {
 			$result = mysqli_query( $link, "SELECT * FROM clients" );
 		} else {
@@ -47,16 +55,15 @@
     	echo mysqli_fetch_row($result)[1];
     } else { 
     	$data = array();  
-	    while ($row = mysqli_fetch_row($result)) {
-	    	$data[] = $row[1];
+	    while ($row = mysqli_fetch_assoc($result)) {
+	    	$data[] = $row;
 	    }
 	   	return $data;
     }
-    mysqli_close( $link );
 	}
 
 	function get_job_code( $id ) {
-		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		global $link;
 		if ( $id == "" ) {
 			$result = mysqli_query( $link, "SELECT * FROM jobcodes" );
 		} else {
@@ -68,16 +75,15 @@
     	echo mysqli_fetch_row($result)[1];
     } else { 
     	$data = array();  
-	    while ($row = mysqli_fetch_row($result)) {
-	    	$data[] = $row[1];
+	    while ($row = mysqli_fetch_assoc($result)) {
+	    	$data[] = $row;
 	    }
 	   	return $data;
 	  }
-    mysqli_close( $link );
 	}
 
 	function get_time_entry( $id ) {
-		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		global $link;
 		if ( $id == "" ) {
 			$result = mysqli_query( $link, "SELECT * FROM timeentry" );
 		} else {
@@ -94,6 +100,50 @@
       }
       return $data;
     }
-    mysqli_close( $link );
+	}
+
+	function add_employee( $name, $phone, $email, $access_code, $admin ) {}
+
+	function remove_employee( $id ) {
+		global $link;
+		$result = mysqli_query( $link, "DELETE FROM employees WHERE id = $id");
+		if (mysqli_num_rows($result) == 0) return false;
+		else return true;
+	}
+
+	function add_client( $site_name ) {
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		$result = mysqli_query($link, "INSERT INTO clients (site_name) VALUES ('Test Site 3108')");
+		if (mysqli_num_rows($result) > 0) {
+		    echo "Success";
+		} else {
+		    echo "Failure";
+		}
+		mysqli_close($link);
+	}
+
+	function remove_client( $id ) {
+		global $link;
+		$result = mysqli_query( $link, "DELETE FROM clients WHERE id = $id");
+		if (mysqli_num_rows($result) == 0) return false;
+		else return true;
+	}
+
+	function add_job_code( $code, $description ) {}
+
+	function remove_job_code( $id ) {
+		global $link;
+		$result = mysqli_query( $link, "DELETE FROM jobcodes WHERE id = $id");
+		if (mysqli_num_rows($result) == 0) return false;
+		else return true;
+	}
+
+	function add_time_entry( $employee, $client, $job_code, $hours, $description ) {}
+
+	function remove_time_entry( $id ) {
+		global $link;
+		$result = mysqli_query( $link, "DELETE FROM timeentry WHERE id = $id");
+		if (mysqli_num_rows($result) == 0) return false;
+		else return true;
 	}
 ?>

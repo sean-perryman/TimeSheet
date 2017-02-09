@@ -15,7 +15,8 @@
       } else { //User has authenticated
         $_SESSION['user_id'] = $row['id'];
         $_SESSION['name'] = $row['name'];
-        if ($row['admin']) $_SESSION['admin'] = true;
+        if ($row['admin'] === "1") $_SESSION['admin'] = true;
+        header( "Location: /" );
       }
     } elseif ($_POST['log_out'] === "true") {
       session_unset();
@@ -108,9 +109,9 @@
                 echo "<tr><td>";
                 echo $row['date'];
                 echo "</td><td>";
-                echo get_client( $row['client_id'] );
+                echo get_client($row['client_id']);
                 echo "</td><td>";
-                echo get_job_code($row['job_code']);
+                echo get_job_code($row['job_code'])['code'];
                 echo "</td><td>";
                 echo substr($row['description'], 0, 32);
                 echo "</td><td>";
@@ -123,8 +124,8 @@
               echo "</table>";
               echo "Total Hours: " . $total_hours;
             }
-          
-          //} else {//End non-admin user ?>
+            echo '<td><button id="new-time-entry" class="btn btn-sm btn-success">New Time Entry</button>';
+          } else {//End non-admin user ?>
               <div class="well"> <!-- Time Entries-->
                 <?php $timeentries = get_time_entry(""); ?>
                 <h2>Time Entries</h2>
@@ -132,6 +133,7 @@
 
                   <tr>
                     <th>Date</th>
+                    <th>Employee</th>
                     <th>Site Name</th>
                     <th>Job Code</th>
                     <th>Description</th>
@@ -142,9 +144,11 @@
                     echo "<tr><td>";
                     echo $timeentries[$i]['date'];
                     echo "</td><td>";
+                    echo get_employee($timeentries[$i]['employee_id'])['name'];
+                    echo "</td><td>";
                     echo get_client( $timeentries[$i]['client_id'] );
                     echo "</td><td>";
-                    echo get_job_code($timeentries[$i]['job_code']);
+                    echo get_job_code($timeentries[$i]['job_code'])['code'];
                     echo "</td><td>";
                     echo substr($timeentries[$i]['description'], 0, 32);
                     echo "</td><td>";
@@ -158,7 +162,6 @@
 
               <div class="well">  <!-- Employees -->
                 <h2>Employees</h2>
-                <div class="well"> <!-- Time Entries-->
                 <?php $employees = get_employee(""); ?>
                 <table class='table'>
                   <tr>
@@ -168,30 +171,64 @@
                     <th>Access Code</th>
                     <th></th>
                   </tr>
-                  <?php for ($j = 0; $j < count($employees); $j++) {
+                  <?php for ($i = 0; $i < count($employees); $i++) {
                     echo "<tr><td>";
-                    echo $employees[$j]['name'];
+                    echo $employees[$i]['name'];
                     echo "</td><td>";
-                    echo $employees[$j]['phone'];
+                    echo $employees[$i]['phone'];
                     echo "</td><td>";
-                    echo $employees[$j]['email'];
+                    echo $employees[$i]['email'];
                     echo "</td><td>";
-                    echo $employees[$j]['access_code'];
+                    echo $employees[$i]['access_code'];
                     echo "</td>";
-                    echo '<td><button id="emp-detail-' . $employees[$j]['id'] . '" class="btn btn-sm btn-info">Detail</button></td>';
+                    echo '<td><button id="emp-detail-' . $employees[$i]['id'] . '" class="btn btn-sm btn-info">Detail</button></td>';
                     echo "</tr>";             
                   } ?>
                 </table>
+                <button id="new-employee-button" class="btn btn-sm btn-success">New Employee</button>
               </div>
-              </div>
+              
               <div class="well">  <!-- Job Codes -->
                 <h2>Job Codes</h2>
-                <?php echo get_job_code(""); ?>
+                <?php $job_codes = get_job_code(""); ?>
+                <table class='table'>
+                  <tr>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th></th>
+                  </tr>
+                  <?php for ($i = 0; $i < count($job_codes); $i++) {
+                    echo "<tr><td>";
+                    echo $job_codes[$i]['code'];
+                    echo "</td><td>";
+                    echo $job_codes[$i]['description'];
+                    echo "</td>";
+                    echo '<td><button id="jc-detail-' . $job_codes[$i]['id'] . '" class="btn btn-sm btn-info">Detail</button></td>';
+                    echo "</tr>";             
+                  } ?>
+                </table>
+                <button id="new-job-code-button" class="btn btn-sm btn-success">New Job Code</button>
               </div>
+
               <div class="well">  <!-- Clients -->
                 <h2>Clients</h2>
-                <?php echo get_client(""); ?>
+                <?php $clients = get_client(""); ?>
+                <table class='table'>
+                  <tr>
+                    <th>Site Name</th>
+                    <th></th>
+                  </tr>
+                  <?php for ($i = 0; $i < count($clients); $i++) {
+                    echo "<tr><td>";
+                    echo $clients[$i]['site_name'];
+                    echo "</td>";
+                    echo '<td><button id="client-detail-' . $clients[$i]['id'] . '" class="btn btn-sm btn-info">Detail</button></td>';
+                    echo "</tr>";             
+                  } ?>
+                </table>
+                <button id="new-client-button" class="btn btn-sm btn-success">New Client</button>
               </div>
+    </div>
           <?php }
 
         }
@@ -202,15 +239,5 @@
         <script src="js/vendor/bootstrap.min.js"></script>
 
         <script src="js/main.js"></script>
-
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='//www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create','UA-XXXXX-X','auto');ga('send','pageview');
-        </script>
     </body>
 </html>
