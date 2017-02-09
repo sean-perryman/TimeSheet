@@ -86,6 +86,7 @@
       </div>
     </nav>
 
+    <div id="alerts"></div>
     <div class="container">
       <?php
         if ($_SESSION['user_id']) { // User is logged in
@@ -126,6 +127,7 @@
             }
             echo '<td><button id="new-time-entry" class="btn btn-sm btn-success">New Time Entry</button>';
           } else {//End non-admin user ?>
+            <?php require_once('modal.php');?>
             <div id="accordion">  
               <h2 class="alert alert-info">Time Entries</h2>
               <div class=""> <!-- Time Entries-->
