@@ -126,11 +126,11 @@
             }
             echo '<td><button id="new-time-entry" class="btn btn-sm btn-success">New Time Entry</button>';
           } else {//End non-admin user ?>
-              <div class="well"> <!-- Time Entries-->
+            <div id="accordion">  
+              <h2 class="alert alert-info">Time Entries</h2>
+              <div class=""> <!-- Time Entries-->
                 <?php $timeentries = get_time_entry(""); ?>
-                <h2>Time Entries</h2>
                 <table class='table'>
-
                   <tr>
                     <th>Date</th>
                     <th>Employee</th>
@@ -160,8 +160,8 @@
                 </table>
               </div>
 
-              <div class="well">  <!-- Employees -->
-                <h2>Employees</h2>
+              <h2 class="alert alert-info">Employees</h2>
+              <div class="">  <!-- Employees -->
                 <?php $employees = get_employee(""); ?>
                 <table class='table'>
                   <tr>
@@ -181,15 +181,16 @@
                     echo "</td><td>";
                     echo $employees[$i]['access_code'];
                     echo "</td>";
-                    echo '<td><button id="emp-detail-' . $employees[$i]['id'] . '" class="btn btn-sm btn-info">Detail</button></td>';
+                    echo '<td><button id="' . $employees[$i]['id'] . '" class="col-md-3 btn btn-sm btn-danger remove-employee">Delete</button>';
+                    echo '<button id="' . $employees[$i]['id'] . '" class="col-md-3 col-md-offset-2 btn btn-sm btn-info detail-employee">Detail</button></td>';
                     echo "</tr>";             
                   } ?>
                 </table>
-                <button id="new-employee-button" class="btn btn-sm btn-success">New Employee</button>
+                <button class="btn btn-sm btn-success add-employee">New Employee</button>
               </div>
               
-              <div class="well">  <!-- Job Codes -->
-                <h2>Job Codes</h2>
+              <h2 class="alert alert-info">Job Codes</h2>
+              <div class="">  <!-- Job Codes -->
                 <?php $job_codes = get_job_code(""); ?>
                 <table class='table'>
                   <tr>
@@ -198,20 +199,21 @@
                     <th></th>
                   </tr>
                   <?php for ($i = 0; $i < count($job_codes); $i++) {
-                    echo "<tr><td>";
+                    echo "<tr><td><p class=''>";
                     echo $job_codes[$i]['code'];
-                    echo "</td><td>";
+                    echo "</p></td><td><p class=''>";
                     echo $job_codes[$i]['description'];
-                    echo "</td>";
-                    echo '<td><button id="jc-detail-' . $job_codes[$i]['id'] . '" class="btn btn-sm btn-info">Detail</button></td>';
-                    echo "</tr>";             
+                    echo "</p></td>";
+                    echo '<td><button id="' . $job_codes[$i]['id'] . '" class="col-md-3 btn btn-sm btn-danger remove-job-code">Delete</button>';
+                    echo '<button id="' . $job_codes[$i]['id'] . '" class="col-md-3 col-md-offset-2 btn btn-sm btn-info detail-job-code">Detail</button></td>';
+                    echo "</div></tr>";             
                   } ?>
                 </table>
-                <button id="new-job-code-button" class="btn btn-sm btn-success">New Job Code</button>
+                <button class="btn btn-sm btn-success add-job-code">New Job Code</button>
               </div>
 
-              <div class="well">  <!-- Clients -->
-                <h2>Clients</h2>
+              <h2 class="alert alert-info">Clients</h2>
+              <div class="">  <!-- Clients -->
                 <?php $clients = get_client(""); ?>
                 <table class='table'>
                   <tr>
@@ -219,22 +221,25 @@
                     <th></th>
                   </tr>
                   <?php for ($i = 0; $i < count($clients); $i++) {
-                    echo "<tr><td>";
+                    echo "<tr><td><p class=''>";
                     echo $clients[$i]['site_name'];
-                    echo "</td>";
-                    echo '<td><button id="client-detail-' . $clients[$i]['id'] . '" class="btn btn-sm btn-info">Detail</button></td>';
+                    echo "</p></td>";
+                    echo '<td><button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-3 btn btn-sm btn-danger remove-client">Delete</button>';
+                    echo '<button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-2 btn btn-sm btn-info detail-client">Detail</button></td>';
                     echo "</tr>";             
                   } ?>
                 </table>
-                <button id="new-client-button" class="btn btn-sm btn-success">New Client</button>
+                <button class="btn btn-sm btn-success add-client">New Client</button>
               </div>
-    </div>
+            </div>
           <?php }
 
         }
       ?>
-    </div> <!-- /container -->        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    </div> <!-- /container -->        
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
         <script src="js/vendor/bootstrap.min.js"></script>
 

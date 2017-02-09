@@ -11,17 +11,22 @@
     return FALSE;
 	}
 
+	/* POST action AJAX handler */
 	if (isset($_POST['action'])) {
     switch ($_POST['action']) {
       case 'add_client':
-        add_client("test site 3107");
+        add_client($_POST['client']);
         break;
+      case 'rem_client':
+      	remove_client( $_POST['client'] );
+      	break;
       case 'select':
         select();
         break;
     }
 	}	
 
+	/* Begin Read Functions */
 	function get_employee( $id ) {
 		global $link;
 		if ( $id == "" ) {
@@ -101,7 +106,10 @@
       return $data;
     }
 	}
+	/* End Read Functions*/
 
+
+	/* Begin Create/Update/Delete Functions */
 	function add_employee( $name, $phone, $email, $access_code, $admin ) {}
 
 	function remove_employee( $id ) {
@@ -113,20 +121,26 @@
 
 	function add_client( $site_name ) {
 		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
-		$result = mysqli_query($link, "INSERT INTO clients (site_name) VALUES ('Test Site 3108')");
-		if (mysqli_num_rows($result) > 0) {
-		    echo "Success";
+		if ($site_name == "") {
+			echo "Please enter a site name";
 		} else {
-		    echo "Failure";
+			$scrubbed = mysqli_real_escape_string($link, $site_name);
+			$result = mysqli_query($link, "INSERT INTO clients (site_name) VALUES ('$scrubbed')");	
+			if (mysqli_num_rows($result) === 0) echo "Failure";
+			else echo "Success";
 		}
 		mysqli_close($link);
 	}
 
 	function remove_client( $id ) {
-		global $link;
-		$result = mysqli_query( $link, "DELETE FROM clients WHERE id = $id");
-		if (mysqli_num_rows($result) == 0) return false;
-		else return true;
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		if ($id == "") {
+			echo "Please enter a site name";
+		} else {
+			$result = mysqli_query( $link, "DELETE FROM clients WHERE id = $id");
+			if (mysqli_num_rows($result) === 0) echo "Failure";
+			else echo "Success";
+		}
 	}
 
 	function add_job_code( $code, $description ) {}
@@ -146,4 +160,6 @@
 		if (mysqli_num_rows($result) == 0) return false;
 		else return true;
 	}
+
+	/* End Create/Update/Delete Functions */
 ?>
