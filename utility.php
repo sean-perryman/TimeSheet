@@ -23,6 +23,9 @@
       case 'select':
         select();
         break;
+      case 'buildTestTable':
+      	build_client_table();
+      	break;
     }
 	}	
 
@@ -48,7 +51,8 @@
 	}
 
 	function get_client( $id ) {
-		global $link;
+		//global $link;
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
 		if ( $id == "" ) {
 			$result = mysqli_query( $link, "SELECT * FROM clients" );
 		} else {
@@ -65,6 +69,7 @@
 	    }
 	   	return $data;
     }
+    mysqli_close( $link );
 	}
 
 	function get_job_code( $id ) {
@@ -165,7 +170,7 @@
 
 	/* Testing out building the client table from here, so that I can do it on the fly after updating */
 	function build_client_table() {
-		$clients = get_client("");
+		echo json_encode(get_client(""));
     /*<table class='table'>
       <tr>
         <th>Site Name</th>

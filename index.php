@@ -214,13 +214,32 @@
 
               <h2 class="alert alert-info">Clients</h2>
               <div class="clientTable">  <!-- Clients -->
-                
+                <?php $clients = get_client(""); ?>
+                <table class='table'>
+                  <tr>
+                    <th>Site Name</th>
+                    <th></th>
+                  </tr>
+                  <?php for ($i = 0; $i < count($clients); $i++) {
+                    echo "<tr><td><p class=''>";
+                    echo $clients[$i]['site_name'];
+                    echo "</p></td>";
+                    echo '<td><button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-3 btn btn-sm btn-danger remove-client">Delete</button>';
+                    echo '<button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-2 btn btn-sm btn-info detail-client">Detail</button></td>';
+                    echo "</tr>";             
+                  } ?>
+                </table>
+                <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#clientModal">New Client</button>
               </div>
+
+
             </div>
           <?php }
 
         }
       ?>
+      <div class="testTable"></div>
+      <button class="btn btn-sm btn-default build-test-table">Test</button>
     </div> <!-- /container -->        
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>

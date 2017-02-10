@@ -72,4 +72,34 @@ $(document).ready( function() {
 		//setTimeout( function() { window.location.reload(); }, 2000); //Need a more elegant way of handling this.
 		/* Perhaps I can utilize ajax and rebuild the table with the get_whatever command. */
 	}
+	/*
+	"<tr><td><p class=''>";
+    echo $clients[$i]['site_name'];
+    echo "</p></td>";
+    echo '<td><button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-3 btn btn-sm btn-danger remove-client">Delete</button>';
+    echo '<button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-2 btn btn-sm btn-info detail-client">Detail</button></td>';
+    echo "</tr>";             
+
+	*/
+
+	$('.build-test-table').click(function () {
+		$.ajax({
+			type: "POST",
+			url: "../utility.php",
+			data: { action: "buildTestTable" }
+			}).done(function( msg ) {
+				var json = JSON.parse(msg)
+				var finishedTable = "<table class='table'><tr><th>Site Name</th><th></th></tr>";
+				for (var i=0; i < json.length; i++) {
+					var o = json[i];
+					//alert( o.site_name );
+					finishedTable += "<tr><td><p>" + o.site_name + "</p></td><td><button id='" + o.id + "' class='col-md-2 col-md-offset-3 btn btn-sm btn-danger remove-client'>Delete</button>";
+					finishedTable += "<button id='" + o.id + "' class='col-md-2 col-md-offset-2 btn btn-sm btn-info detail-client'>Detail</button></td></tr>";
+				}
+				finishedTable += "</table><button class='btn btn-sm btn-success' data-toggle='modal' data-target='#clientModal'>New Client</button>";
+
+				$('.testTable').empty();
+				$('.testTable').append(finishedTable);
+			});
+	});
 });
