@@ -6,10 +6,8 @@ $(document).ready( function() {
 		  type: "POST",
 		  url: "../utility.php",
 		  data: { action: "add_client", client: client }
-		}).done(function( msg ) {
-		  $( "#accordion" ).accordion({ collapsible: true, active: false });
-		  $('#alerts').append('<p class="alert alert-success">' + msg + '<p>');
-		  setTimeout( function() { $('#alerts').fadeOut("slow")}, 3000);
+		}).done(function( msg ) {		  
+		  displayAlert( msg, "Client added successfully." );
 		});  
 	});
 
@@ -23,10 +21,7 @@ $(document).ready( function() {
 			  url: "../utility.php",
 			  data: { action: "rem_client", client: this.id }
 			}).done(function( msg ) {
-			  window.location = "/";
-			  alert( msg );
-			  //jQuery in a flash message
-			  //SetTimeout to fade it out
+			  displayAlert( msg, "Client removed successfully." );
 			}); 
 		} else window.location = "/";
 	 });
@@ -68,4 +63,20 @@ $(document).ready( function() {
 	$( function() {
     $( "#accordion" ).accordion({ collapsible: true, active: false });
   } );
+
+	//$(function() { PNotify.prototype.options.styling = "bootstrap3"; });
+
+  /*$(function() {
+    new PNotify({
+    	title: 'Oh No!',
+    	text: 'Something terrible happened.',
+    	type: 'error'
+		});
+	});*/
+
+	function displayAlert( msg, messageText ) {
+		if (msg === "Success") $(function() { new PNotify({ title: 'Success!!', text: messageText, type: 'success' }); });
+		else if (msg === "Failure") $(function() { new PNotify({ title: 'Error', text: messageText, type: 'error' }); });
+		setTimeout( function() { window.location.reload(); }, 2000);
+	}
 });

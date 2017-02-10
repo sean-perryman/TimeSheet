@@ -46,7 +46,7 @@
         </style>
         <link rel="stylesheet" href="css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="css/main.css">
-
+        <link href="css/pnotify.custom.min.css" media="all" rel="stylesheet" type="text/css" />
         <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
     </head>
     <body>
@@ -244,7 +244,7 @@
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
         <script src="js/vendor/bootstrap.min.js"></script>
-
+        <script type="text/javascript" src="js/pnotify.custom.min.js"></script> <!--notifications-->      
         <script src="js/main.js"></script>
     </body>
 </html>
