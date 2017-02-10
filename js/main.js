@@ -1,13 +1,15 @@
 $(document).ready( function() {
 	/* Add Client Ajax Function */
 	$('.add-client').click( function() {
-		var client = prompt("Enter new site name");
+		var client = $('#newClientSite').val();
 		$.ajax({
 		  type: "POST",
 		  url: "../utility.php",
 		  data: { action: "add_client", client: client }
 		}).done(function( msg ) {		  
+		  $("#clientModal").modal().hide();
 		  displayAlert( msg, "Client added successfully." );
+		  
 		});  
 	});
 
@@ -64,19 +66,10 @@ $(document).ready( function() {
     $( "#accordion" ).accordion({ collapsible: true, active: false });
   } );
 
-	//$(function() { PNotify.prototype.options.styling = "bootstrap3"; });
-
-  /*$(function() {
-    new PNotify({
-    	title: 'Oh No!',
-    	text: 'Something terrible happened.',
-    	type: 'error'
-		});
-	});*/
-
 	function displayAlert( msg, messageText ) {
 		if (msg === "Success") $(function() { new PNotify({ title: 'Success!!', text: messageText, type: 'success' }); });
 		else if (msg === "Failure") $(function() { new PNotify({ title: 'Error', text: messageText, type: 'error' }); });
-		setTimeout( function() { window.location.reload(); }, 2000);
+		//setTimeout( function() { window.location.reload(); }, 2000); //Need a more elegant way of handling this.
+		/* Perhaps I can utilize ajax and rebuild the table with the get_whatever command. */
 	}
 });

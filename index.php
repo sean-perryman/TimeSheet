@@ -85,8 +85,6 @@
         </div><!--/.navbar-collapse -->
       </div>
     </nav>
-
-    <div id="alerts"></div>
     <div class="container">
       <?php
         if ($_SESSION['user_id']) { // User is logged in
@@ -127,7 +125,7 @@
             }
             echo '<td><button id="new-time-entry" class="btn btn-sm btn-success">New Time Entry</button>';
           } else {//End non-admin user ?>
-            <?php require_once('modal.php');?>
+            <?php require_once('client_modal.php'); ?>
             <div id="accordion">  
               <h2 class="alert alert-info">Time Entries</h2>
               <div class=""> <!-- Time Entries-->
@@ -215,23 +213,8 @@
               </div>
 
               <h2 class="alert alert-info">Clients</h2>
-              <div class="">  <!-- Clients -->
-                <?php $clients = get_client(""); ?>
-                <table class='table'>
-                  <tr>
-                    <th>Site Name</th>
-                    <th></th>
-                  </tr>
-                  <?php for ($i = 0; $i < count($clients); $i++) {
-                    echo "<tr><td><p class=''>";
-                    echo $clients[$i]['site_name'];
-                    echo "</p></td>";
-                    echo '<td><button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-3 btn btn-sm btn-danger remove-client">Delete</button>';
-                    echo '<button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-2 btn btn-sm btn-info detail-client">Detail</button></td>';
-                    echo "</tr>";             
-                  } ?>
-                </table>
-                <button class="btn btn-sm btn-success add-client">New Client</button>
+              <div class="clientTable">  <!-- Clients -->
+                
               </div>
             </div>
           <?php }

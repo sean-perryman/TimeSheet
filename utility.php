@@ -162,4 +162,24 @@
 	}
 
 	/* End Create/Update/Delete Functions */
+
+	/* Testing out building the client table from here, so that I can do it on the fly after updating */
+	function build_client_table() {
+		$clients = get_client("");
+    /*<table class='table'>
+      <tr>
+        <th>Site Name</th>
+        <th></th>
+      </tr>
+      <?php for ($i = 0; $i < count($clients); $i++) {
+        echo "<tr><td><p class=''>";
+        echo $clients[$i]['site_name'];
+        echo "</p></td>";
+        echo '<td><button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-3 btn btn-sm btn-danger remove-client">Delete</button>';
+        echo '<button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-2 btn btn-sm btn-info detail-client">Detail</button></td>';
+        echo "</tr>";             
+      } ?>
+    </table>
+    <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#clientModal">New Client</button>*/
+	}
 ?>
