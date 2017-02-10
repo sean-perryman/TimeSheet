@@ -18,20 +18,26 @@
         add_client($_POST['client']);
         break;
       case 'rem_client':
-      	remove_client( $_POST['client'] );
+      	remove_client( $_POST['id'] );
       	break;
-      case 'select':
-        select();
-        break;
-      case 'buildTestTable':
+      case 'add_job_code':
+      	add_job_code( $_POST['code'], $_POST['desc'] );
+      	break;
+      case 'rem_job_code':
+      	remove_job_code( $_POST['id'] );
+      	break;
+      case 'buildClientTable':
       	build_client_table();
+      	break;
+      case 'buildJobCodeTable':
+      	build_job_code_table();
       	break;
     }
 	}	
 
 	/* Begin Read Functions */
 	function get_employee( $id ) {
-		global $link;
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
 		if ( $id == "" ) {
 			$result = mysqli_query( $link, "SELECT * FROM employees" );
 		} else {
@@ -48,10 +54,10 @@
       }
       return $data;
     }
+    mysqli_close($link);
 	}
 
-	function get_client( $id ) {
-		//global $link;
+	function get_client( $id ) {	
 		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
 		if ( $id == "" ) {
 			$result = mysqli_query( $link, "SELECT * FROM clients" );
@@ -73,7 +79,7 @@
 	}
 
 	function get_job_code( $id ) {
-		global $link;
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
 		if ( $id == "" ) {
 			$result = mysqli_query( $link, "SELECT * FROM jobcodes" );
 		} else {
@@ -90,10 +96,11 @@
 	    }
 	   	return $data;
 	  }
+	  mysqli_close($link);
 	}
 
 	function get_time_entry( $id ) {
-		global $link;
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
 		if ( $id == "" ) {
 			$result = mysqli_query( $link, "SELECT * FROM timeentry" );
 		} else {
@@ -110,6 +117,7 @@
       }
       return $data;
     }
+    mysqli_close($link);
 	}
 	/* End Read Functions*/
 
@@ -134,7 +142,7 @@
 			if (mysqli_num_rows($result) === 0) echo "Failure";
 			else echo "Success";
 		}
-		mysqli_close($link);
+		mysqli_close($link); //DONE
 	}
 
 	function remove_client( $id ) {
@@ -145,16 +153,32 @@
 			$result = mysqli_query( $link, "DELETE FROM clients WHERE id = $id");
 			if (mysqli_num_rows($result) === 0) echo "Failure";
 			else echo "Success";
-		}
+		} //DONE
 	}
 
-	function add_job_code( $code, $description ) {}
+	function add_job_code( $code, $desc ) {
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		if ($code == "") {
+			echo "Please enter a job code";
+		} else {
+			$s_code = mysqli_real_escape_string($link, $code);
+			$s_desc = mysqli_real_escape_string($link, $desc);
+			$result = mysqli_query($link, "INSERT INTO jobcodes (code, description) VALUES ('$s_code', '$s_desc')");	
+			if (mysqli_num_rows($result) === 0) echo "Failure";
+			else echo "Success";
+		}
+		mysqli_close($link);
+	}
 
 	function remove_job_code( $id ) {
-		global $link;
-		$result = mysqli_query( $link, "DELETE FROM jobcodes WHERE id = $id");
-		if (mysqli_num_rows($result) == 0) return false;
-		else return true;
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		if ($id == "") {
+			echo "Please enter a site name";
+		} else {
+			$result = mysqli_query( $link, "DELETE FROM jobcodes WHERE id = $id");
+			if (mysqli_num_rows($result) === 0) echo "Failure";
+			else echo "Success";
+		}
 	}
 
 	function add_time_entry( $employee, $client, $job_code, $hours, $description ) {}
@@ -165,26 +189,22 @@
 		if (mysqli_num_rows($result) == 0) return false;
 		else return true;
 	}
-
 	/* End Create/Update/Delete Functions */
 
-	/* Testing out building the client table from here, so that I can do it on the fly after updating */
+	/* Table Building - Simple JSON return */
 	function build_client_table() {
 		echo json_encode(get_client(""));
-    /*<table class='table'>
-      <tr>
-        <th>Site Name</th>
-        <th></th>
-      </tr>
-      <?php for ($i = 0; $i < count($clients); $i++) {
-        echo "<tr><td><p class=''>";
-        echo $clients[$i]['site_name'];
-        echo "</p></td>";
-        echo '<td><button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-3 btn btn-sm btn-danger remove-client">Delete</button>';
-        echo '<button id="' . $clients[$i]['id'] . '" class="col-md-2 col-md-offset-2 btn btn-sm btn-info detail-client">Detail</button></td>';
-        echo "</tr>";             
-      } ?>
-    </table>
-    <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#clientModal">New Client</button>*/
+	}
+
+	function build_job_code_table() {
+		echo json_encode(get_job_code(""));
+	}
+
+	function build_employee_table() {
+		echo json_encode(get_employee(""));
+	}
+
+	function build_time_entry_table( $id ) {
+		echo json_encode(get_time_entry($id));
 	}
 ?>
