@@ -1,0 +1,2 @@
+/* Overflow setting for the tables on the admin page */
+.mainTables { overflow-y: auto; overflow-x: hidden; }

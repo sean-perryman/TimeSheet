@@ -1,6 +1,38 @@
 $(document).ready( function() {
-	
 	/* ADD/REMOVE DATA FUNCTIONS */
+	/* Add Employee */
+	$(document).on("click", ".add-employee", function() {
+		var name = $('#newEmployeeName').val();	
+		var phone = $('#newEmployeePhone').val();
+		var email = $('#newEmployeeEmail').val();	
+		var accessCode = $('#newEmployeeAccessCode').val();
+		$.ajax({
+		  type: "POST",
+		  url: "../utility.php",
+		  data: { action: "add_employee", name: name, phone: phone, email: email, accessCode: accessCode }
+		}).done(function( msg ) {		  
+		  $("#newEmployeeModal").modal("hide");
+		  displayAlert( msg, "Employee" );
+		  buildEmployeeTable();
+		});  
+	});
+
+	/* Remove Employee  */
+	$(document).on("click", ".remove-employee", function() { 
+		//Perhaps an ajax call to the get_client function to populate a variable?
+		var c = confirm( "Please confirm you would like to delete this entry." );
+		if (c) {
+			$.ajax({
+			  type: "POST",
+			  url: "../utility.php",
+			  data: { action: "rem_employee", id: this.id }
+			}).done(function( msg ) {
+			  displayAlert( msg, "Employee" );
+			  buildEmployeeTable();
+			}); 
+		}
+	 });
+
 	/* Add Job Code */
 	$(document).on("click", ".add-job-code", function() {
 		var code = $('#newJobCode').val();	
@@ -11,7 +43,7 @@ $(document).ready( function() {
 		  data: { action: "add_job_code", code: code, desc: desc }
 		}).done(function( msg ) {		  
 		  $("#newJobCodeModal").modal("hide");
-		  displayAlert( msg, "Job code added successfully." );
+		  displayAlert( msg, "Job code" );
 		  buildJobCodeTable();
 		});  
 	});
@@ -26,7 +58,7 @@ $(document).ready( function() {
 			  url: "../utility.php",
 			  data: { action: "rem_job_code", id: this.id }
 			}).done(function( msg ) {
-			  displayAlert( msg, "Job code removed successfully." );
+			  displayAlert( msg, "Job code" );
 			  buildJobCodeTable();
 			}); 
 		}
@@ -98,14 +130,36 @@ $(document).ready( function() {
 		});
 	}
 
+	function buildEmployeeTable() {
+    $.ajax({type: "POST", url: "../utility.php", data: { action: "buildEmployeeTable" }}).done(function( msg ) {
+			var json = JSON.parse(msg);
+			var finishedTable = "<table class='table'><tr><th>Name</th><th>Phone Number</th><th>Email Address</th><th></th></tr>";
+			for (var i=0; i < json.length; i++) {
+				var o = json[i];
+				finishedTable += "<tr><td><p>" + o.name + "</p></td><td><p>" + o.phone + "</p></td><td>";
+				finishedTable += "<p>" + o.email + "</p></td><td>";
+				finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-employee'>Detail</button></td></tr>";
+			}
+			finishedTable += "</table><button class='btn btn-sm btn-success' data-toggle='modal' data-target='#newEmployeeModal'>New Employee</button>";
+
+			$('.employeeTable').empty();
+			$('.employeeTable').append(finishedTable);
+			$('#newEmployeeName').val("");
+			$('#newEmployeePhone').val("");
+			$('#newEmployeeEmail').val("");
+			$('#newEmployeeAccessCode').val("");
+		});
+	}
+
 	/* STAND ALONE FUNCTIONS */
   function displayAlert( msg, messageText ) {
-		if (msg === "Success") $(function() { new PNotify({ title: 'Success!!', delay: 2000, text: messageText, type: 'success' }); });
-		else if (msg === "Failure") $(function() { new PNotify({ title: 'Error', delay: 2000, text: messageText, type: 'error' }); });
+		if (msg === "Success") $(function() { new PNotify({ title: 'Success!!', delay: 2000, text: messageText + " has been added successfully", type: 'success' }); });
+		else if (msg === "Failure") $(function() { new PNotify({ title: 'Error', delay: 2000, text: "Failed to add new " + messageText, type: 'error' }); });
 	}
 
 	/* ANONYMOUS FUNCTIONS TO FIRE ON PAGE LOAD */
 	$(function() { 
+		buildEmployeeTable() //Build employee table from JSON
 		buildClientTable(); //Build client table from JSON
 		buildJobCodeTable(); //Build job code table from JSON
 		$( "#accordion" ).accordion({ collapsible: true, active: false }); //Activate accordion
@@ -116,6 +170,6 @@ $(document).ready( function() {
   $(document).ajaxStart(function () {
       //$("body").css("overflow-y","scroll");
   }).ajaxStop(function () {
-      $("body").css("overflow-y","scroll");
+      //$("body").css("overflow-y","scroll");
   });
 });

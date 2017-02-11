@@ -1,4 +1,4 @@
-<?php 
+<?php
   require('header.php');
   global $link;
   //Process access_code to user_id
@@ -59,9 +59,10 @@
           } else {//End non-admin user ?>
             <?php require('new_client_modal.php'); ?>
             <?php require('new_job_code_modal.php'); ?>
+            <?php require('new_employee_modal.php'); ?>
             <div id="accordion">  
               <h2 class="alert alert-info">Time Entries</h2>
-              <div class="timeEntryTable"> <!-- Time Entries-->
+              <div class="timeEntryTable mainTables"> <!-- Time Entries-->
                 <?php $timeentries = get_time_entry(""); ?>
                 <table class='table'>
                   <tr>
@@ -88,37 +89,15 @@
               </div>
 
               <h2 class="alert alert-info">Employees</h2>
-              <div class="employeeTable">  <!-- Employees -->
-                <?php $employees = get_employee(""); ?> 
-                <table class='table'>
-                  <tr>
-                    <th>Name</th>
-                    <th>Phone Number</th>
-                    <th>Email Address</th>
-                    <th></th>
-                  </tr>
-                  <?php for ($i = 0; $i < count($employees); $i++) {
-                    echo "<tr><td>";
-                    echo $employees[$i]['name'];
-                    echo "</td><td>";
-                    echo $employees[$i]['phone'];
-                    echo "</td><td>";
-                    echo $employees[$i]['email'];
-                    echo "</td>";
-                    echo '<td><button id="' . $employees[$i]['id'] . '" class="col-md-3 btn btn-sm btn-danger remove-employee">Delete</button>';
-                    echo '<button id="' . $employees[$i]['id'] . '" class="col-md-3 col-md-offset-2 btn btn-sm btn-info detail-employee">Detail</button></td>';
-                    echo "</tr>";             
-                  } ?>
-                </table>
-                <button class="btn btn-sm btn-success add-employee">New Employee</button>
+              <div class="employeeTable mainTables">  <!-- Employees -->
               </div>
               
               <h2 class="alert alert-info">Job Codes</h2>
-              <div class="jobCodeTable">  <!-- Job Codes -->
+              <div class="jobCodeTable mainTables">  <!-- Job Codes -->
               </div>
 
               <h2 class="clients alert alert-info">Clients</h2>
-              <div class="clientTable">  <!-- Clients -->
+              <div class="clientTable mainTables">  <!-- Clients -->
               </div>
             
             </div>

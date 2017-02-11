@@ -26,11 +26,20 @@
       case 'rem_job_code':
       	remove_job_code( $_POST['id'] );
       	break;
+      case 'add_employee':
+      	add_employee( $_POST['name'], $_POST['phone'], $_POST['email'], $_POST['accessCode'] );
+      	break;
+      case 'rem_employee':
+      	remove_employee( $_POST['id'] );
+      	break;
       case 'buildClientTable':
       	build_client_table();
       	break;
       case 'buildJobCodeTable':
       	build_job_code_table();
+      	break;
+      case 'buildEmployeeTable':
+      	build_employee_table();
       	break;
     }
 	}	
@@ -123,13 +132,31 @@
 
 
 	/* Begin Create/Update/Delete Functions */
-	function add_employee( $name, $phone, $email, $access_code, $admin ) {}
+	function add_employee( $name, $phone, $email, $access_code ) {
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		if ($name == "") {
+			echo "Please enter an employee name";
+		} else {
+			$s_name = mysqli_real_escape_string($link, $name);
+			$s_phone = mysqli_real_escape_string($link, $phone);
+			$s_email = mysqli_real_escape_string($link, $email);
+			$s_access_code = mysqli_real_escape_string($link, $access_code);
+			$result = mysqli_query($link, "INSERT INTO employees (name, phone, email, access_code) VALUES ('$s_name', '$s_phone', '$s_email', '$s_access_code')");	
+			if (mysqli_num_rows($result) === 0) echo "Failure";
+			else echo "Success";
+		}
+		mysqli_close($link);
+	}
 
 	function remove_employee( $id ) {
-		global $link;
-		$result = mysqli_query( $link, "DELETE FROM employees WHERE id = $id");
-		if (mysqli_num_rows($result) == 0) return false;
-		else return true;
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		if ($id == "") {
+			echo "Please select an employee";
+		} else {
+			$result = mysqli_query( $link, "DELETE FROM employees WHERE id = $id");
+			if (mysqli_num_rows($result) === 0) echo "Failure";
+			else echo "Success";
+		}
 	}
 
 	function add_client( $site_name ) {
@@ -142,7 +169,7 @@
 			if (mysqli_num_rows($result) === 0) echo "Failure";
 			else echo "Success";
 		}
-		mysqli_close($link); //DONE
+		mysqli_close($link);
 	}
 
 	function remove_client( $id ) {
@@ -153,7 +180,7 @@
 			$result = mysqli_query( $link, "DELETE FROM clients WHERE id = $id");
 			if (mysqli_num_rows($result) === 0) echo "Failure";
 			else echo "Success";
-		} //DONE
+		} 
 	}
 
 	function add_job_code( $code, $desc ) {
@@ -183,28 +210,15 @@
 
 	function add_time_entry( $employee, $client, $job_code, $hours, $description ) {}
 
-	function remove_time_entry( $id ) {
-		global $link;
-		$result = mysqli_query( $link, "DELETE FROM timeentry WHERE id = $id");
-		if (mysqli_num_rows($result) == 0) return false;
-		else return true;
-	}
+	function remove_time_entry( $id ) {}
 	/* End Create/Update/Delete Functions */
 
 	/* Table Building - Simple JSON return */
-	function build_client_table() {
-		echo json_encode(get_client(""));
-	}
+	function build_client_table() { echo json_encode(get_client("")); }
 
-	function build_job_code_table() {
-		echo json_encode(get_job_code(""));
-	}
+	function build_job_code_table() { echo json_encode(get_job_code("")); }
 
-	function build_employee_table() {
-		echo json_encode(get_employee(""));
-	}
+	function build_employee_table() { echo json_encode(get_employee("")); }
 
-	function build_time_entry_table( $id ) {
-		echo json_encode(get_time_entry($id));
-	}
+	function build_time_entry_table( $id ) { echo json_encode(get_time_entry($id)); }
 ?>
