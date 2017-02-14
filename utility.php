@@ -41,6 +41,15 @@
       case 'buildEmployeeTable':
       	build_employee_table();
       	break;
+      case 'buildTimeEntryTable':
+      	build_time_entry_table( $_POST['employee'] );
+      	break;
+      case 'get_employee':
+      	return json_encode(get_employee($_POST['employee']));
+      	break;
+      case 'get_client':
+      	return get_client( $_POST['client'] );
+      	break;
     }
 	}	
 
@@ -53,9 +62,9 @@
 			$result = mysqli_query( $link, "SELECT * FROM employees WHERE id = $id" );
 		}
 
-    if (mysqli_num_rows( $result ) == 0) echo "N/A";
-    elseif (mysqli_num_rows( $result) == 1) {
-    	return mysqli_fetch_assoc($result);
+    if (mysqli_num_rows($result) == 0) echo "N/A";
+    elseif (mysqli_num_rows($result) == 1) {
+    	echo mysqli_fetch_row($result)[1];
     } else { 
     	$data = array();  
       while ($row = mysqli_fetch_assoc($result)) {
@@ -129,7 +138,6 @@
     mysqli_close($link);
 	}
 	/* End Read Functions*/
-
 
 	/* Begin Create/Update/Delete Functions */
 	function add_employee( $name, $phone, $email, $access_code ) {

@@ -89,16 +89,13 @@
               </div>
 
               <h2 class="alert alert-info">Employees</h2>
-              <div class="employeeTable mainTables">  <!-- Employees -->
-              </div>
+              <div class="employeeTable mainTables">  <!-- Employees --></div>
               
               <h2 class="alert alert-info">Job Codes</h2>
-              <div class="jobCodeTable mainTables">  <!-- Job Codes -->
-              </div>
+              <div class="jobCodeTable mainTables">  <!-- Job Codes --></div>
 
               <h2 class="clients alert alert-info">Clients</h2>
-              <div class="clientTable mainTables">  <!-- Clients -->
-              </div>
+              <div class="clientTable mainTables">  <!-- Clients --></div>
             
             </div>
           <?php }

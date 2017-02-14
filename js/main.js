@@ -97,20 +97,20 @@ $(document).ready( function() {
 	/* TABLE BUILDING FUNCTIONS */
 	function buildClientTable() {
 		$.ajax({type: "POST", url: "../utility.php", data: { action: "buildClientTable" }}).done(function( msg ) {
-				var json = JSON.parse(msg);
-				var finishedTable = "<table class='table'><tr><th>Site Name</th><th></th></tr>";
-				for (var i=0; i < json.length; i++) {
-					var o = json[i];
-					finishedTable += "<tr><td><p>" + o.site_name + "</p></td><td><button id='" + o.id + "' class='col-md-2 col-md-offset-3 btn btn-sm btn-danger remove-client'>Delete</button>";
-					finishedTable += "<button id='" + o.id + "' class='col-md-2 col-md-offset-2 btn btn-sm btn-info detail-client'>Detail</button></td></tr>";
-				}
-				finishedTable += "</table><button class='btn btn-sm btn-success' data-toggle='modal' data-target='#newClientModal'>New Client</button>";
+			var json = JSON.parse(msg);
+			var finishedTable = "<table class='table'><tr><th>Site Name</th><th></th></tr>";
+			for (var i=0; i < json.length; i++) {
+				var o = json[i];
+				finishedTable += "<tr><td><p>" + o.site_name + "</p></td><td><button id='" + o.id + "' class='col-md-2 col-md-offset-3 btn btn-sm btn-danger remove-client'>Delete</button>";
+				finishedTable += "<button id='" + o.id + "' class='col-md-2 col-md-offset-2 btn btn-sm btn-info detail-client'>Detail</button></td></tr>";
+			}
+			finishedTable += "</table><button class='btn btn-sm btn-success' data-toggle='modal' data-target='#newClientModal'>New Client</button>";
 
-				$('.clientTable').empty();
-				$('.clientTable').append(finishedTable);
-				$('#newClientSite').val("");				
-			});
-		}
+			$('.clientTable').empty();
+			$('.clientTable').append(finishedTable);
+			$('#newClientSite').val("");				
+		});
+	}		
 
 	function buildJobCodeTable() {
     $.ajax({type: "POST", url: "../utility.php", data: { action: "buildJobCodeTable" }}).done(function( msg ) {
@@ -151,6 +151,34 @@ $(document).ready( function() {
 		});
 	}
 
+	function buildTimeEntryTable() {
+    $.ajax({type: "POST", url: "../utility.php", data: { action: "buildTimeEntryTable" }}).done(function( msg ) {
+			var json = JSON.parse(msg);
+			var finishedTable = "<table class='table'><tr><th>Date</th><th>Employee</th><th>Site Name</th><th>Hours</th><th></th></tr>";
+			for (var i=0; i < json.length; i++) {
+				var o = json[i];
+
+				var employee;
+				var client;
+				console.log( o );
+				$.ajax({type: "POST", async: false, url: "../utility.php", data: { action: "get_employee", employee: o.employee_id }}).done(function( msg ) { employee = msg; });
+				$.ajax({type: "POST", async: false, url: "../utility.php", data: { action: "get_client", client: o.client_id }}).done(function( msg ) { client = msg; });
+
+				finishedTable += "<tr><td><p>" + o.date + "</p></td><td><p>" + employee + "</p></td><td>";
+				finishedTable += "<p>" + client + "</p></td><td><p>" + o.hours + "</p></td><td>";
+				finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-time-entry'>Detail</button></td></tr>";
+			}
+			finishedTable += "</table>";//<button class='btn btn-sm btn-success' data-toggle='modal' data-target='#newTimeEntryModal'>New Time Entry</button>";
+
+			$('.timeEntryTable').empty();
+			$('.timeEntryTable').append(finishedTable);
+			$('#newEmployeeName').val("");
+			$('#newEmployeePhone').val("");
+			$('#newEmployeeEmail').val("");
+			$('#newEmployeeAccessCode').val("");
+		});
+	}
+
 	/* STAND ALONE FUNCTIONS */
   function displayAlert( msg, messageText ) {
 		if (msg === "Success") $(function() { new PNotify({ title: 'Success!!', delay: 2000, text: messageText + " has been added successfully", type: 'success' }); });
@@ -159,6 +187,7 @@ $(document).ready( function() {
 
 	/* ANONYMOUS FUNCTIONS TO FIRE ON PAGE LOAD */
 	$(function() { 
+		buildTimeEntryTable(); //Buils time entry table from JSON
 		buildEmployeeTable() //Build employee table from JSON
 		buildClientTable(); //Build client table from JSON
 		buildJobCodeTable(); //Build job code table from JSON
@@ -172,4 +201,29 @@ $(document).ready( function() {
   }).ajaxStop(function () {
       //$("body").css("overflow-y","scroll");
   });
+
+  function dump(arr,level) {
+		var dumped_text = "";
+		if(!level) level = 0;
+		
+		//The padding given at the beginning of the line.
+		var level_padding = "";
+		for(var j=0;j<level+1;j++) level_padding += "    ";
+		
+		if(typeof(arr) == 'object') { //Array/Hashes/Objects 
+			for(var item in arr) {
+				var value = arr[item];
+				
+				if(typeof(value) == 'object') { //If it is an array,
+					dumped_text += level_padding + "'" + item + "' ...\n";
+					dumped_text += dump(value,level+1);
+				} else {
+					dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
+				}
+			}
+		} else { //Stings/Chars/Numbers etc.
+			dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
+		}
+		return dumped_text;
+	}
 });
