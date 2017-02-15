@@ -158,14 +158,13 @@ $(document).ready( function() {
 			for (var i=0; i < json.length; i++) {
 				var o = json[i];
 
-				var employee;
-				var client;
-				console.log( o );
-				$.ajax({type: "POST", async: false, url: "../utility.php", data: { action: "get_employee", employee: o.employee_id }}).done(function( msg ) { employee = msg; });
-				$.ajax({type: "POST", async: false, url: "../utility.php", data: { action: "get_client", client: o.client_id }}).done(function( msg ) { client = msg; });
+				let id = o.id;
 
-				finishedTable += "<tr><td><p>" + o.date + "</p></td><td><p>" + employee + "</p></td><td>";
-				finishedTable += "<p>" + client + "</p></td><td><p>" + o.hours + "</p></td><td>";
+				$.ajax({type: "POST", url: "../utility.php", data: { action: "get_employee", employee: o.employee_id }}).done(function( msg ) { $('#tet-emp-'+id).text(JSON.parse(msg).name);  });
+				$.ajax({type: "POST", url: "../utility.php", data: { action: "get_client", client: o.client_id }}).done(function( msg ) { $('#tet-client-'+id).text(JSON.parse(msg).site_name); });
+
+				finishedTable += "<tr><td><p>" + o.date + "</p></td><td><p id='tet-emp-" + o.id + "'></p></td><td>";
+				finishedTable += "<p id='tet-client-" + o.id + "'></p></td><td><p>" + o.hours + "</p></td><td>";
 				finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-time-entry'>Detail</button></td></tr>";
 			}
 			finishedTable += "</table>";//<button class='btn btn-sm btn-success' data-toggle='modal' data-target='#newTimeEntryModal'>New Time Entry</button>";
@@ -176,6 +175,8 @@ $(document).ready( function() {
 			$('#newEmployeePhone').val("");
 			$('#newEmployeeEmail').val("");
 			$('#newEmployeeAccessCode').val("");
+
+			if (!$('#admin-container').hasClass('accordion')) addAccordion();
 		});
 	}
 
@@ -191,7 +192,6 @@ $(document).ready( function() {
 		buildEmployeeTable() //Build employee table from JSON
 		buildClientTable(); //Build client table from JSON
 		buildJobCodeTable(); //Build job code table from JSON
-		$( "#accordion" ).accordion({ collapsible: true, active: false }); //Activate accordion
 	}); 
 
 	/* MISC FUNCTIONS */
@@ -201,6 +201,11 @@ $(document).ready( function() {
   }).ajaxStop(function () {
       //$("body").css("overflow-y","scroll");
   });
+
+  function addAccordion() { //Activate accordion after the time entries tables is built
+  	$('#admin-container').addClass('accordion');
+		$( ".accordion" ).accordion({ collapsible: true, active: false }); 
+  }
 
   function dump(arr,level) {
 		var dumped_text = "";

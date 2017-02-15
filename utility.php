@@ -1,4 +1,4 @@
-<?php
+<?php 
 	// Check for session
 	function is_session_started() {
     if ( php_sapi_name() !== 'cli' ) {
@@ -42,10 +42,10 @@
       	build_employee_table();
       	break;
       case 'buildTimeEntryTable':
-      	build_time_entry_table( $_POST['employee'] );
+      	build_time_entry_table();
       	break;
       case 'get_employee':
-      	return json_encode(get_employee($_POST['employee']));
+      	return get_employee($_POST['employee']);
       	break;
       case 'get_client':
       	return get_client( $_POST['client'] );
@@ -64,8 +64,8 @@
 
     if (mysqli_num_rows($result) == 0) echo "N/A";
     elseif (mysqli_num_rows($result) == 1) {
-    	echo mysqli_fetch_row($result)[1];
-    } else { 
+    	echo json_encode(mysqli_fetch_assoc($result));
+    }else { 
     	$data = array();  
       while ($row = mysqli_fetch_assoc($result)) {
       	$data[] = $row;
@@ -85,7 +85,7 @@
 
     if (mysqli_num_rows( $result ) == 0) echo "N/A";
     elseif (mysqli_num_rows( $result) == 1) {
-    	echo mysqli_fetch_row($result)[1];
+    	echo json_encode(mysqli_fetch_assoc($result));
     } else { 
     	$data = array();  
 	    while ($row = mysqli_fetch_assoc($result)) {
@@ -228,5 +228,8 @@
 
 	function build_employee_table() { echo json_encode(get_employee("")); }
 
-	function build_time_entry_table( $id ) { echo json_encode(get_time_entry($id)); }
+	function build_time_entry_table( ) { 
+		if ($_SESSION['admin']) echo json_encode(get_time_entry()); 
+		else echo json_encode(get_time_entry( $_SESSION['user_id'] ));
+	}
 ?>

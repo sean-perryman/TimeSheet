@@ -18,6 +18,7 @@
       }
     } elseif ($_POST['log_out'] === "true") {
       session_unset();
+      header( "Location: /" );
     }
   }
 ?>
@@ -60,33 +61,9 @@
             <?php require('new_client_modal.php'); ?>
             <?php require('new_job_code_modal.php'); ?>
             <?php require('new_employee_modal.php'); ?>
-            <div id="accordion">  
+            <div id="admin-container">  
               <h2 class="alert alert-info">Time Entries</h2>
-              <div class="timeEntryTable mainTables"> <!-- Time Entries-->
-                <?php $timeentries = get_time_entry(""); ?>
-                <table class='table'>
-                  <tr>
-                    <th>Date</th>
-                    <th>Employee</th>
-                    <th>Site Name</th>
-                    <th>Hours</th>
-                    <th></th>
-                  </tr>
-                  <?php for ($i = 0; $i < count($timeentries); $i++) {
-                    echo "<tr><td>";
-                    echo $timeentries[$i]['date'];
-                    echo "</td><td>";
-                    echo get_employee($timeentries[$i]['employee_id'])['name'];
-                    echo "</td><td>";
-                    echo get_client( $timeentries[$i]['client_id'] );
-                    echo "</td><td>";
-                    echo $timeentries[$i]['hours'];
-                    echo "</td>";
-                    echo '<td><button id="te-detail-' . $timeentries[$i]['id'] . '" class="btn btn-sm btn-info">Detail</button></td>';
-                    echo "</tr>";             
-                  } ?>
-                </table>
-              </div>
+              <div class="timeEntryTable mainTables"> <!-- Time Entries--></div>
 
               <h2 class="alert alert-info">Employees</h2>
               <div class="employeeTable mainTables">  <!-- Employees --></div>
