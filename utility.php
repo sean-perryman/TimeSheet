@@ -13,6 +13,7 @@
 
 	/* POST action AJAX handler */
 	if (isset($_POST['action'])) {
+		if (!is_session_started()) session_start();
     switch ($_POST['action']) {
       case 'add_client':
         add_client($_POST['client']);
@@ -28,6 +29,9 @@
       	break;
       case 'add_employee':
       	add_employee( $_POST['name'], $_POST['phone'], $_POST['email'], $_POST['accessCode'] );
+      	break;
+      case 'add_time_entry':
+      	add_time_entry( $_POST['date'], $_POST['employee_id'], $_POST['site_name'], $_POST['job_code'], $_POST['hours'], $_POST['description'] );
       	break;
       case 'rem_employee':
       	remove_employee( $_POST['id'] );
@@ -48,8 +52,15 @@
       	return get_employee($_POST['employee']);
       	break;
       case 'get_client':
-      	return get_client( $_POST['client'] );
+      	echo get_client( $_POST['client'] );
       	break;
+      case 'check_for_admin':
+        echo isset($_SESSION['admin']);
+        break;
+      case 'get_logged_in_user':
+       	echo $_SESSION['user_id'];
+       	break;
+
     }
 	}	
 
@@ -106,15 +117,15 @@
 
     if (mysqli_num_rows( $result ) == 0) echo "N/A";
     elseif (mysqli_num_rows( $result) == 1) {
-    	echo mysqli_fetch_row($result)[1];
+    	echo json_encode(mysqli_fetch_assoc($result));
     } else { 
     	$data = array();  
 	    while ($row = mysqli_fetch_assoc($result)) {
 	    	$data[] = $row;
 	    }
 	   	return $data;
-	  }
-	  mysqli_close($link);
+    }
+    mysqli_close( $link );
 	}
 
 	function get_time_entry( $id ) {
@@ -125,7 +136,7 @@
 			$result = mysqli_query( $link, "SELECT * FROM timeentry WHERE employee_id = $id" );
 		}
 
-    if (mysqli_num_rows( $result ) == 0) echo "N/A";
+    if (mysqli_num_rows( $result ) == 0) return null;
     elseif (mysqli_num_rows( $result) == 1) {
     	return mysqli_fetch_assoc($result);
     } else { 
@@ -216,7 +227,24 @@
 		}
 	}
 
-	function add_time_entry( $employee, $client, $job_code, $hours, $description ) {}
+	function add_time_entry( $date, $employee, $client, $job_code, $hours, $description ) {
+		//TODO: some form of validation
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		
+		$s_date = date( 'Y-m-d H:i:s', strtotime(mysqli_real_escape_string($link, $date)) );
+		//$s_date = mysqli_real_escape_string($link, $date);
+		$s_employee = mysqli_real_escape_string($link, $employee);
+		$s_client = mysqli_real_escape_string($link, $client);
+		$s_job_code = mysqli_real_escape_string($link, $job_code);
+		$s_hours = mysqli_real_escape_string($link, $hours);
+		$s_desc = mysqli_real_escape_string($link, $description);
+
+		$result = mysqli_query($link, "INSERT INTO timeentry (date, employee_id, client_id, jobcode_id, hours, description) VALUES ('$s_date', '$s_employee', '$s_client', '$s_job_code', '$s_hours', '$s_desc')");	
+		if (mysqli_num_rows($result) === 0) echo "Failure";
+		else echo "Success";
+		
+		mysqli_close($link);
+	}
 
 	function remove_time_entry( $id ) {}
 	/* End Create/Update/Delete Functions */

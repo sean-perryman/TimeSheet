@@ -27,40 +27,16 @@
     <div class="container">
       <?php
         if ($_SESSION['user_id']) { // User is logged in
-
           //Non-Admin User - Displays all of their time entries
-          if (!$_SESSION['admin']) {        
-            $user_id = $_SESSION['user_id'];
-            $result = mysqli_query( $link, "SELECT * FROM timeentry WHERE employee_id = $user_id" );
-            if (mysqli_num_rows( $result ) == 0) echo "<p>No time entries found.</p>";
-            else {
-              $total_hours = 0; ?>
-              <table class='table well'>
-                <tr>
-                  <th>Date</th>
-                  <th>Site Name</th>
-                  <th>Hours</th>
-                </tr>
-              <?php while ($row = mysqli_fetch_assoc($result)) {
-                echo "<tr><td>";
-                echo $row['date'];
-                echo "</td><td>";
-                echo get_client($row['client_id']);
-                echo "</td><td>";
-                echo $row['hours'];
-                echo "</td>";
-                echo '<td><button id="' . $row['id'] . '" class="time-entry-detail btn btn-sm btn-info">Detail</button>'; //need to verify auth
-                echo "</td></tr>";
-                $total_hours += $row['hours'];
-              }
-              echo "</table>";
-              echo "Total Hours: " . $total_hours;
-            }
-            echo '<td><button id="new-time-entry" class="btn btn-sm btn-success">New Time Entry</button>';
+          if (!isset($_SESSION['admin'])) { 
+            require('time_entry_modal.php');       
+            ?><h2 class="alert alert-info">Time Entries</h2>
+              <div class="timeEntryTable mainTables"> <!-- Time Entries--></div><?php
           } else {//End non-admin user ?>
             <?php require('new_client_modal.php'); ?>
             <?php require('new_job_code_modal.php'); ?>
             <?php require('new_employee_modal.php'); ?>
+            <?php require('time_entry_modal.php'); ?>
             <div id="admin-container">  
               <h2 class="alert alert-info">Time Entries</h2>
               <div class="timeEntryTable mainTables"> <!-- Time Entries--></div>
@@ -73,10 +49,10 @@
 
               <h2 class="clients alert alert-info">Clients</h2>
               <div class="clientTable mainTables">  <!-- Clients --></div>
-            
             </div>
           <?php }
 
         }
-      require( 'footer.php' ); 
-     ?>
+      require( 'footer.php' ); ?>
+     
+      

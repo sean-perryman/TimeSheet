@@ -24,6 +24,7 @@
             }
         </style>
         <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <link rel="stylesheet" href="css/main.css">
         <link href="css/pnotify.custom.min.css" media="all" rel="stylesheet" type="text/css" />
         <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
