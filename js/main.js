@@ -1,13 +1,93 @@
 $(document).ready( function() {
+	//Time Entry Detail
+	$(document).on('click', '.detail-time-entry', function() {
+		$.ajax({type: "POST", url: "../utility.php", data: { action: "get_time_entry", id: this.id }}).done(function( msg ) { 
+			var json = JSON.parse(msg);
+			
+			$.ajax({type: "POST", url: "../utility.php", data: { action: "buildClientTable" }}).done(function( msg ) { 
+		    var json = JSON.parse(msg);		
+				var length;
+				var finishedSelect = "<select name='timeEntrySiteName' class='form-control' id='timeEntrySiteName'><option value='null'>Select a site name</option>";
+				if (typeof json.id !== 'undefined') length = 1;
+				else length = Object.keys(json).length;
+				for (var i=0; i < length; i++) {
+					if (length > 1) var o = json[i];
+					else var o = json;
+					finishedSelect += "<option value='" + o.id + "'>" + o.site_name + "</option>";
+				}	
+				finishedSelect += "</select>";
+
+				$('#timeEntrySiteNameSelect').empty();
+				$('#timeEntrySiteNameSelect').append(finishedSelect);
+		  }).done( function() { $('#timeEntrySiteName').val(json.client_id); });
+	    
+	    $.ajax({type: "POST", url: "../utility.php", data: { action: "buildJobCodeTable" }}).done(function( msg ) { 
+		    var json = JSON.parse(msg);		
+				var length;
+				var finishedSelect = "<select name='timeEntryJobCode' class='form-control' id='timeEntryJobCode'><option value='null'>Select a job code</option>";
+				if (typeof json.id !== 'undefined') length = 1;
+				else length = Object.keys(json).length;
+				for (var i=0; i < length; i++) {
+					if (length > 1) var o = json[i];
+					else var o = json;
+					finishedSelect += "<option value='" + o.id + "'>" + o.code + " | " + o.description + "</option>";
+				}	
+				finishedSelect += "</select>";
+
+				$('#timeEntryJobCodeSelect').empty();
+				$('#timeEntryJobCodeSelect').append(finishedSelect);
+		  }).done( function() { $('#timeEntryJobCode').val(json.jobcode_id); });
+
+		  $.ajax({type: "POST", url: "../utility.php", data: { action: "buildEmployeeTable" }}).done(function( msg ) { 
+		    var json = JSON.parse(msg);		
+				var length;
+				var finishedSelect = "<select name='timeEntryEmployee' class='form-control' id='timeEntryEmployee'>";
+				if (typeof json.id !== 'undefined') length = 1;
+				else length = Object.keys(json).length;
+				for (var i=0; i < length; i++) {
+					if (length > 1) var o = json[i];
+					else var o = json;
+					finishedSelect += "<option value='" + o.id + "'>" + o.name + "</option>";
+				}	
+				finishedSelect += "</select>";
+
+				$('#timeEntryEmployeeSelect').empty();
+				$('#timeEntryEmployeeSelect').append(finishedSelect);
+		  }).done( function() { $('#timeEntryEmployee').val(json.employee_id); });
+
+			$('#timeEntryDate').val(json.date);	
+			$('#timeEntryEmployeeID').val(json.employee_id);
+			$('#timeEntryHours').val(json.hours);
+			$('#timeEntryID').val(json.id);
+			$('#timeEntryDescription').val(json.description);
+		});
+		//Remove submit class from button
+		$('#timeEntryButton').removeClass('time-entry-submit');
+		
+		//Add update class to button
+		$('#timeEntryButton').addClass('time-entry-update');
+
+		//TODO: Disable update button when finalized = true
+		//Change text to update
+		$('#timeEntryButton').text('Update');
+	});
+
 	//Pre-fill out the new time-entry form
-	$(document).on('click', '.new-time-entry', function() {             
-		//console.log('1');
-		$.ajax({type: "POST", url: "../utility.php", data: { action: "get_logged_in_user" }}).done(function( msg ) { $('#timeEntryEmployeeID').val(msg); console.log('Current User: ' + msg); });
-		//console.log('2');
+	$(document).on('click', '.new-time-entry', function() { 
+		var today = new Date();
+		
+		$('#timeEntryDate').val(today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate());
+		$('#timeEntryEmployeeID').val("");
+		$('#timeEntrySiteName').val("");
+		$('#timeEntryJobCode').val("");
+		$('#timeEntryHours').val("");
+		$('#timeEntryDescription').val("");
+
+		$.ajax({type: "POST", url: "../utility.php", data: { action: "get_logged_in_user" }}).done(function( msg ) { $('#timeEntryEmployeeID').val(msg); });
 	  $.ajax({type: "POST", url: "../utility.php", data: { action: "buildClientTable" }}).done(function( msg ) { 
 	    var json = JSON.parse(msg);		
 			var length;
-			var finishedSelect = "<select class='form-control' id='timeEntrySiteName'><option value='null'>Select a site name</option>";
+			var finishedSelect = "<select name='timeEntrySiteName' class='form-control' id='timeEntrySiteName'><option value='null'>Select a site name</option>";
 			if (typeof json.id !== 'undefined') length = 1;
 			else length = Object.keys(json).length;
 			for (var i=0; i < length; i++) {
@@ -20,11 +100,11 @@ $(document).ready( function() {
 			$('#timeEntrySiteNameSelect').empty();
 			$('#timeEntrySiteNameSelect').append(finishedSelect);
 	  });
-    //console.log('3');        
+          
     $.ajax({type: "POST", url: "../utility.php", data: { action: "buildJobCodeTable" }}).done(function( msg ) { 
 	    var json = JSON.parse(msg);		
 			var length;
-			var finishedSelect = "<select class='form-control' id='timeEntryJobCode'><option value='null'>Select a job code</option>";
+			var finishedSelect = "<select name='timeEntryJobCode' class='form-control' id='timeEntryJobCode'><option value='null'>Select a job code</option>";
 			if (typeof json.id !== 'undefined') length = 1;
 			else length = Object.keys(json).length;
 			for (var i=0; i < length; i++) {
@@ -37,6 +117,15 @@ $(document).ready( function() {
 			$('#timeEntryJobCodeSelect').empty();
 			$('#timeEntryJobCodeSelect').append(finishedSelect);
 	  });
+
+	  //Remove update class from button
+		$('#timeEntryButton').removeClass('time-entry-update');
+		
+		//Add new entry class
+		$('#timeEntryButton').addClass('time-entry-submit');
+
+		//Change text to submit
+		$('#timeEntryButton').text('Submit');
 	});
 	
 	/* ADD/REMOVE DATA FUNCTIONS */
@@ -135,6 +224,29 @@ $(document).ready( function() {
 	 });
 
 	/* SUBMIT BUTTON IN THE TIME ENTRY MODAL */
+	$(document).on("click", ".time-entry-update", function() {
+		//TODO: check if updating or new record
+		//TODO: check if record is finalized; prevent update if so
+		var timeentry_id = $('#timeEntryID').val();
+		var date = $('#timeEntryDate').val();	
+		var employee_id = $('#timeEntryEmployeeID').val();
+		var site_name = $('#timeEntrySiteName').val();	
+		var job_code = $('#timeEntryJobCode').val();	
+		var hours = $('#timeEntryHours').val();
+		var description = $('#timeEntryDescription').val();
+
+		$.ajax({
+		  type: "POST",
+		  url: "../utility.php",
+		  data: { action: "update_time_entry", timeentry_id: timeentry_id, date: date, employee_id: employee_id, site_name: site_name, job_code: job_code, hours: hours, description: description }
+		}).done(function( msg ) {		  
+		  $("#timeEntryModal").modal("hide");
+		  displayAlert( msg, "Time Entry" );
+		  buildTimeEntryTable_User();
+		});  
+	});
+
+	/* SUBMIT BUTTON IN THE TIME ENTRY MODAL */
 	$(document).on("click", ".time-entry-submit", function() {
 		//TODO: check if updating or new record
 		//TODO: check if record is finalized; prevent update if so
@@ -202,7 +314,7 @@ $(document).ready( function() {
 				var o = json[i];
 				finishedTable += "<tr><td><p>" + o.name + "</p></td><td><p>" + o.phone + "</p></td><td>";
 				finishedTable += "<p>" + o.email + "</p></td><td>";
-				finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-employee'>Detail</button></td></tr>";
+				finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-time-entry'>Detail</button></td></tr>";
 			}
 			finishedTable += "</table><button class='btn btn-sm btn-success' data-toggle='modal' data-target='#newEmployeeModal'>New Employee</button>";
 
@@ -238,7 +350,7 @@ $(document).ready( function() {
 
 						finishedTable += "<tr><td><p>" + o.date + "</p></td><td>";
 						finishedTable += "<p id='tet-client-" + o.id + "'></p></td><td><p>" + o.hours + "</p></td><td>";
-						finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-time-entry'>Detail</button></td></tr>";
+						finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-time-entry' data-toggle='modal' data-target='#timeEntryModal'>Detail</button></td></tr>";
 					}
 					finishedTable += "</table><button class='new-time-entry btn btn-sm btn-success' data-toggle='modal' data-target='#timeEntryModal'>New Time Entry</button>";
 
@@ -274,7 +386,7 @@ $(document).ready( function() {
 
 				finishedTable += "<tr><td><p>" + o.date + "</p></td><td><p id='tet-emp-" + o.id + "'></p></td><td>";
 				finishedTable += "<p id='tet-client-" + o.id + "'></p></td><td><p>" + o.hours + "</p></td><td>";
-				finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-time-entry'>Detail</button></td></tr>";
+				finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-time-entry' data-toggle='modal' data-target='#timeEntryModal'>Detail</button></td></tr>";
 			}
 			finishedTable += "</table>";//<button class='btn btn-sm btn-success' data-toggle='modal' data-target='#newTimeEntryModal'>New Time Entry</button>";
 
@@ -288,6 +400,7 @@ $(document).ready( function() {
   function displayAlert( msg, messageText ) {
 		if (msg === "Success") $(function() { new PNotify({ title: 'Success!!', delay: 2000, text: messageText + " has been added successfully", type: 'success' }); });
 		else if (msg === "Failure") $(function() { new PNotify({ title: 'Error', delay: 2000, text: "Failed to add new " + messageText, type: 'error' }); });
+		else $(function() { new PNotify({ title: 'Other', delay: 10000, text: "Message: " + msg, type: 'info' }); });
 	}
 
 	/* MISC FUNCTIONS */
@@ -303,6 +416,13 @@ $(document).ready( function() {
 			buildEmployeeTable() //Build employee table from JSON
 			buildClientTable(); //Build client table from JSON
 			buildJobCodeTable(); //Build job code table from JSON
+
+			//Add something in here to make the admin detail view work
+			$('#timeEntryEmployeeSelect').removeClass('hidden');
+			$('#timeEntryFinalized').removeClass('hidden');
+			$('#timeEntryEmployeeLabel').removeClass('hidden');
+			$('#timeEntryFinalizedLabel').removeClass('hidden');
+			
 		} else {
 			buildTimeEntryTable_User();
 		}

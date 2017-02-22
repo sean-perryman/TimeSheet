@@ -8,9 +8,13 @@
       <div class="modal-body">
         <form>
           <div class="form-group">
+            <label for="timeEntryEmployee" class='hidden' id='timeEntryEmployeeLabel'>Employee</label>
+            <div id="timeEntryEmployeeSelect" class='hidden'></div>
+
             <label for="timeEntryDate">Date</label>
             <input class="form-control" id="timeEntryDate" value="<?php echo date('Y-m-d H:i:s'); ?>">
             <input type='hidden' class="form-control" id="timeEntryEmployeeID" value="<?php echo $_SESSION['user_id']; ?>">
+            <input type='hidden' class="form-control" id="timeEntryID">
           
             <label for="timeEntrySiteName">Site Name</label>
             <div id="timeEntrySiteNameSelect"></div>
@@ -40,8 +44,11 @@
 
             <label for="timeEntryDescription">Description</label>
             <input class="form-control" id="timeEntryDescription">
+
+            <label for="timeEntryFinalized" class='hidden' id='timeEntryFinalizedLabel'>Finalized</label>
+            <input type='checkbox' class='hidden form-control' id='timeEntryFinalized'>
           </div>
-          <button type="button" class="time-entry-submit btn btn-default">Submit</button>
+          <button type="button" id="timeEntryButton" class="time-entry-submit btn btn-default">Submit</button>
         </form>
       </div>
 
