@@ -12,7 +12,7 @@
             <div id="timeEntryEmployeeSelect" class='hidden'></div>
 
             <label for="timeEntryDate">Date</label>
-            <input class="form-control" id="timeEntryDate" value="<?php echo date('Y-m-d H:i:s'); ?>">
+            <input class="form-control datepicker" id="timeEntryDate" value="<?php echo date('Y-m-d H:i:s'); ?>">
             <input type='hidden' class="form-control" id="timeEntryEmployeeID" value="<?php echo $_SESSION['user_id']; ?>">
             <input type='hidden' class="form-control" id="timeEntryID">
           
@@ -45,8 +45,8 @@
             <label for="timeEntryDescription">Description</label>
             <input class="form-control" id="timeEntryDescription">
 
-            <label for="timeEntryFinalized" class='hidden' id='timeEntryFinalizedLabel'>Finalized</label>
-            <input type='checkbox' class='hidden form-control' id='timeEntryFinalized'>
+            <label for="timeEntryFinalized" id='timeEntryFinalizedLabel'>Finalized</label>
+            <input type='checkbox' class='form-control' id='timeEntryFinalized'>
           </div>
           <button type="button" id="timeEntryButton" class="time-entry-submit btn btn-default">Submit</button>
         </form>

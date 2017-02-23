@@ -19,7 +19,10 @@ $(document).ready( function() {
 
 				$('#timeEntrySiteNameSelect').empty();
 				$('#timeEntrySiteNameSelect').append(finishedSelect);
-		  }).done( function() { $('#timeEntrySiteName').val(json.client_id); });
+		  }).done( function() { 
+		  	$('#timeEntrySiteName').val(json.client_id); 
+		  	if (json.finalized == 1 && $('#admin-container').length == false) $('#timeEntrySiteName').attr("disabled", "disabled");
+		  });
 	    
 	    $.ajax({type: "POST", url: "../utility.php", data: { action: "buildJobCodeTable" }}).done(function( msg ) { 
 		    var json = JSON.parse(msg);		
@@ -36,7 +39,10 @@ $(document).ready( function() {
 
 				$('#timeEntryJobCodeSelect').empty();
 				$('#timeEntryJobCodeSelect').append(finishedSelect);
-		  }).done( function() { $('#timeEntryJobCode').val(json.jobcode_id); });
+		  }).done( function() { 
+		  	$('#timeEntryJobCode').val(json.jobcode_id); 
+		  	if (json.finalized == 1 && $('#admin-container').length == false) $('#timeEntryJobCode').attr("disabled", "disabled");
+		  });
 
 		  $.ajax({type: "POST", url: "../utility.php", data: { action: "buildEmployeeTable" }}).done(function( msg ) { 
 		    var json = JSON.parse(msg);		
@@ -60,6 +66,23 @@ $(document).ready( function() {
 			$('#timeEntryHours').val(json.hours);
 			$('#timeEntryID').val(json.id);
 			$('#timeEntryDescription').val(json.description);
+
+			if (json.finalized == 1) $('#timeEntryFinalized').prop("checked", true);
+			else $('#timeEntryFinalized').prop("checked", false);
+
+			if (json.finalized == 1 && $('#admin-container').length == false) {
+				$('#timeEntryDate').attr("disabled", "disabled");
+				$('#timeEntryHours').attr("disabled", "disabled");
+				$('#timeEntryDescription').attr("disabled", "disabled");
+				$('#timeEntryButton').attr("disabled", "disabled");
+				$('#timeEntryFinalized').attr("disabled", "disabled");
+			} else {
+				$('#timeEntryDate').removeAttr("disabled", "disabled");
+				$('#timeEntryHours').removeAttr("disabled", "disabled");
+				$('#timeEntryDescription').removeAttr("disabled", "disabled");
+				$('#timeEntryButton').removeAttr("disabled", "disabled");
+				$('#timeEntryFinalized').removeAttr("disabled", "disabled");
+			}
 		});
 		//Remove submit class from button
 		$('#timeEntryButton').removeClass('time-entry-submit');
@@ -234,15 +257,19 @@ $(document).ready( function() {
 		var job_code = $('#timeEntryJobCode').val();	
 		var hours = $('#timeEntryHours').val();
 		var description = $('#timeEntryDescription').val();
+		var finalized = 0;
+		if ($('#timeEntryFinalized').prop( "checked" )) finalized = 1;
 
 		$.ajax({
 		  type: "POST",
 		  url: "../utility.php",
-		  data: { action: "update_time_entry", timeentry_id: timeentry_id, date: date, employee_id: employee_id, site_name: site_name, job_code: job_code, hours: hours, description: description }
+		  data: { action: "update_time_entry", timeentry_id: timeentry_id, date: date, employee_id: employee_id, site_name: site_name, job_code: job_code, hours: hours, description: description, finalized: finalized }
 		}).done(function( msg ) {		  
 		  $("#timeEntryModal").modal("hide");
 		  displayAlert( msg, "Time Entry" );
-		  buildTimeEntryTable_User();
+		  var today = new Date();
+	    var date = today.getFullYear() + '-' + ('0' + (today.getMonth()+1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
+		  buildTimeEntryTable_User(date);
 		});  
 	});
 
@@ -256,15 +283,19 @@ $(document).ready( function() {
 		var job_code = $('#timeEntryJobCode').val();	
 		var hours = $('#timeEntryHours').val();
 		var description = $('#timeEntryDescription').val();
+		var finalized = 0;
+		if ($('#timeEntryFinalized').prop( "checked" )) finalized = 1;
 
 		$.ajax({
 		  type: "POST",
 		  url: "../utility.php",
-		  data: { action: "add_time_entry", date: date, employee_id: employee_id, site_name: site_name, job_code: job_code, hours: hours, description: description }
+		  data: { action: "add_time_entry", date: date, employee_id: employee_id, site_name: site_name, job_code: job_code, hours: hours, description: description, finalized: finalized }
 		}).done(function( msg ) {		  
 		  $("#timeEntryModal").modal("hide");
 		  displayAlert( msg, "Time Entry" );
-		  buildTimeEntryTable_User();
+		  var today = new Date();
+	    var date = today.getFullYear() + '-' + ('0' + (today.getMonth()+1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
+		  buildTimeEntryTable_User(date);
 		});  
 	});
 
@@ -307,8 +338,8 @@ $(document).ready( function() {
 	function buildEmployeeTable() {
     $.ajax({type: "POST", url: "../utility.php", data: { action: "buildEmployeeTable" }}).done(function( msg ) {
 			var json = JSON.parse(msg);
-			console.log( "json.length = " + json.length);
-			console.log( "Object.keys(json).length = " + Object.keys(json).length);
+			//console.log( "json.length = " + json.length);
+			//console.log( "Object.keys(json).length = " + Object.keys(json).length);
 			var finishedTable = "<table class='table'><tr><th>Name</th><th>Phone Number</th><th>Email Address</th><th></th></tr>";
 			for (var i=0; i < json.length; i++) {
 				var o = json[i];
@@ -327,14 +358,16 @@ $(document).ready( function() {
 		});
 	}
 
-	function buildTimeEntryTable_User() {
+	function buildTimeEntryTable_User( date ) {
     var employee;
+	  console.log( "Date passed to JS buildTimeEntryTable_User function: " + date);
     $.ajax({type: "POST", url: "../utility.php", data: { action: "get_logged_in_user" }}).done(function( msg ) { employee = msg; }).done( function() {
-	    $.ajax({type: "POST", url: "../utility.php", data: { action: "buildTimeEntryTable", employee: employee }}).done(function( msg ) {
+	    $.ajax({type: "POST", url: "../utility.php", data: { action: "buildTimeEntryTable", date: date }}).done(function( msg ) {
 				if (msg === "null") {
 					$('.timeEntryTable').append("<p>No time entries found.</p><button class='new-time-entry btn btn-sm btn-success' data-toggle='modal' data-target='#timeEntryModal'>New Time Entry</button>");
 					$('#timeEntryDate').val("");
 				} else {
+					console.log(msg);
 					var json = JSON.parse(msg);					
 					var finishedTable = "<table class='table'><tr><th>Date</th><th>Site Name</th><th>Hours</th><th></th></tr>";
 					
@@ -342,8 +375,7 @@ $(document).ready( function() {
 					if (typeof json.id !== 'undefined') length = 1;
 					else length = Object.keys(json).length;
 					for (var i=0; i < length; i++) {
-						if (length > 1) var o = json[i];
-						else var o = json;
+						var o = json[i];
 						
 						let id = o.id;
 						$.ajax({type: "POST", url: "../utility.php", data: { action: "get_client", client: o.client_id }}).done(function( msg ) { $('#tet-client-'+id).text(JSON.parse(msg).site_name); });
@@ -396,6 +428,17 @@ $(document).ready( function() {
 		});
 	}
 
+	/*  */
+	$(document).on('click', '#filterTimeEntries', function(event) {
+		event.preventDefault();
+		
+	});
+
+	$(document).on('click', '#showAllTimeEntries', function(event) {
+		event.preventDefault();
+		
+	});
+
 	/* STAND ALONE FUNCTIONS */
   function displayAlert( msg, messageText ) {
 		if (msg === "Success") $(function() { new PNotify({ title: 'Success!!', delay: 2000, text: messageText + " has been added successfully", type: 'success' }); });
@@ -419,14 +462,13 @@ $(document).ready( function() {
 
 			//Add something in here to make the admin detail view work
 			$('#timeEntryEmployeeSelect').removeClass('hidden');
-			$('#timeEntryFinalized').removeClass('hidden');
 			$('#timeEntryEmployeeLabel').removeClass('hidden');
-			$('#timeEntryFinalizedLabel').removeClass('hidden');
-			
 		} else {
-			buildTimeEntryTable_User();
+			var today = new Date();
+	    var date = today.getFullYear() + '-' + ('0' + (today.getMonth()+1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
+			buildTimeEntryTable_User(date);
 		}
 	});
 
-	$(function() { $("#timeEntryDate").datepicker(); });
+	$(function() { $(".datepicker").datepicker(); });
 });

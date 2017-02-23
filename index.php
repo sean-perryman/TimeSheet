@@ -31,6 +31,13 @@
           if (!isset($_SESSION['admin'])) { 
             require('time_entry_modal.php');       
             ?><h2 class="alert alert-info">Time Entries</h2>
+              <form class="well form-inline">
+                <div class="form-group">
+                  <input class="form-control datepicker" id="displayTimeEntriesDate" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+                <button class="btn btn-success" id='filterTimeEntries'>Filter</button>
+                <button class="btn btn-info" id='showAllTimeEntries'>Show All Entries</button>
+              </form>
               <div class="timeEntryTable mainTables"> <!-- Time Entries--></div><?php
           } else {//End non-admin user ?>
             <?php require('new_client_modal.php'); ?>

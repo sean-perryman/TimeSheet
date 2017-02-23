@@ -31,10 +31,10 @@
       	add_employee( $_POST['name'], $_POST['phone'], $_POST['email'], $_POST['accessCode'] );
       	break;
       case 'add_time_entry':
-      	add_time_entry( $_POST['date'], $_POST['employee_id'], $_POST['site_name'], $_POST['job_code'], $_POST['hours'], $_POST['description'] );
+      	add_time_entry( $_POST['date'], $_POST['employee_id'], $_POST['site_name'], $_POST['job_code'], $_POST['hours'], $_POST['description'], $_POST['finalized'] );
       	break;
       case 'update_time_entry':
-      	update_time_entry( $_POST['timeentry_id'], $_POST['date'], $_POST['employee_id'], $_POST['site_name'], $_POST['job_code'], $_POST['hours'], $_POST['description'] );
+      	update_time_entry( $_POST['timeentry_id'], $_POST['date'], $_POST['employee_id'], $_POST['site_name'], $_POST['job_code'], $_POST['hours'], $_POST['description'], $_POST['finalized'] );
       	break;
       case 'rem_employee':
       	remove_employee( $_POST['id'] );
@@ -49,7 +49,7 @@
       	build_employee_table();
       	break;
       case 'buildTimeEntryTable':
-      	build_time_entry_table();
+      	build_time_entry_table( $_POST['date'] );
       	break;
       case 'get_employee':
       	echo get_employee($_POST['employee']);
@@ -135,43 +135,29 @@
 
 	function get_individual_time_entry( $id ) {
 		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
-		if ( $id == "" ) {
-			$result = mysqli_query( $link, "SELECT * FROM timeentry" );
-		} else {
-			$result = mysqli_query( $link, "SELECT * FROM timeentry WHERE id = $id" );
-		}
+		$result = mysqli_query( $link, "SELECT * FROM timeentry WHERE id = $id" );
 
     if (mysqli_num_rows( $result ) == 0) return null;
-    elseif (mysqli_num_rows( $result) == 1) {
-    	echo json_encode(mysqli_fetch_assoc($result));
-    } else { 
-    	$data = array();  
-      while ($row = mysqli_fetch_assoc($result)) {
-      	$data[] = $row;
-      }
-      return $data;
-    }
+    elseif (mysqli_num_rows( $result) == 1) echo json_encode(mysqli_fetch_assoc($result));
     mysqli_close($link);
 	}
 
-	function get_time_entry( $id ) {
+	function get_time_entry( $id, $date ) {
 		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
 		if ( $id == "" ) {
 			$result = mysqli_query( $link, "SELECT * FROM timeentry" );
+		} elseif (isset($date)) {
+			$result = mysqli_query( $link, "SELECT * FROM timeentry WHERE employee_id = $id AND date LIKE '" . $date . "%'" );
 		} else {
 			$result = mysqli_query( $link, "SELECT * FROM timeentry WHERE employee_id = $id" );
 		}
 
-    if (mysqli_num_rows( $result ) == 0) return null;
-    elseif (mysqli_num_rows( $result) == 1) {
-    	echo json_encode(mysqli_fetch_assoc($result));
-    } else { 
-    	$data = array();  
-      while ($row = mysqli_fetch_assoc($result)) {
-      	$data[] = $row;
-      }
-      return $data;
+  	$data = array();  
+    while ($row = mysqli_fetch_assoc($result)) {
+    	$data[] = $row;
     }
+    return $data;
+    
     mysqli_close($link);
 	}
 	/* End Read Functions*/
@@ -253,7 +239,7 @@
 		}
 	}
 
-	function add_time_entry( $date, $employee, $client, $job_code, $hours, $description ) {
+	function add_time_entry( $date, $employee, $client, $job_code, $hours, $description, $finalized ) {
 		//TODO: some form of validation
 		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
 		
@@ -264,15 +250,16 @@
 		$s_job_code = mysqli_real_escape_string($link, $job_code);
 		$s_hours = mysqli_real_escape_string($link, $hours);
 		$s_desc = mysqli_real_escape_string($link, $description);
+		$s_finalized = mysqli_real_escape_string($link, $finalized);
 
-		$result = mysqli_query($link, "INSERT INTO timeentry (date, employee_id, client_id, jobcode_id, hours, description) VALUES ('$s_date', '$s_employee', '$s_client', '$s_job_code', '$s_hours', '$s_desc')");	
+		$result = mysqli_query($link, "INSERT INTO timeentry (date, employee_id, client_id, jobcode_id, hours, description, finalized) VALUES ('$s_date', '$s_employee', '$s_client', '$s_job_code', '$s_hours', '$s_desc', '$s_finalized')");	
 		if (mysqli_num_rows($result) === 0) echo "Failure";
 		else echo "Success";
 		
 		mysqli_close($link);
 	}
 
-	function update_time_entry( $timeentry_id, $date, $employee, $client, $job_code, $hours, $description ) {
+	function update_time_entry( $timeentry_id, $date, $employee, $client, $job_code, $hours, $description, $finalized ) {
 		//TODO: some form of validation
 		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
 		
@@ -283,11 +270,11 @@
 		$s_job_code = mysqli_real_escape_string($link, $job_code);
 		$s_hours = mysqli_real_escape_string($link, $hours);
 		$s_desc = mysqli_real_escape_string($link, $description);
+		$s_finalized = mysqli_real_escape_string($link, $finalized);
 
-
-		$sql = "UPDATE timeentry SET date='$s_date', employee_id='$s_employee', client_id='$s_client', jobcode_id='$s_job_code', hours='$s_hours', description='$s_desc' WHERE id=" . $timeentry_id;
-		$result = mysqli_query($link, $sql);;// or die(mysqli_error($link));			
-		if (!$result) echo "s_id:" . $s_id . " | timeentry_id:" . $timeentry_id;
+		$sql = "UPDATE timeentry SET date='$s_date', employee_id='$s_employee', client_id='$s_client', jobcode_id='$s_job_code', hours='$s_hours', description='$s_desc', finalized='$s_finalized' WHERE id=" . $timeentry_id;
+		$result = mysqli_query($link, $sql);
+		if (!$result) echo "Failure";
 		else echo "Success";
 		
 		mysqli_close($link);
@@ -303,8 +290,9 @@
 
 	function build_employee_table() { echo json_encode(get_employee("")); }
 
-	function build_time_entry_table( ) { 
+	function build_time_entry_table( $date ) { 
 		if ($_SESSION['admin']) echo json_encode(get_time_entry()); 
+		else if (isset($date)) echo json_encode(get_time_entry( $_SESSION['user_id'], $date ));
 		else echo json_encode(get_time_entry( $_SESSION['user_id'] ));
 	}
 ?>
