@@ -12,7 +12,7 @@
             <div id="timeEntryEmployeeSelect" class='hidden'></div>
 
             <label for="timeEntryDate">Date</label>
-            <input class="form-control datepicker" id="timeEntryDate" value="<?php echo date('Y-m-d H:i:s'); ?>">
+            <input class="form-control datepicker" id="timeEntryDate">
             <input type='hidden' class="form-control" id="timeEntryEmployeeID" value="<?php echo $_SESSION['user_id']; ?>">
             <input type='hidden' class="form-control" id="timeEntryID">
           

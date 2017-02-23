@@ -98,8 +98,8 @@ $(document).ready( function() {
 	//Pre-fill out the new time-entry form
 	$(document).on('click', '.new-time-entry', function() { 
 		var today = new Date();
-		
-		$('#timeEntryDate').val(today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate());
+
+		$('#timeEntryDate').val(today.getFullYear() + '-' + ('0' + (today.getMonth()+1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2));
 		$('#timeEntryEmployeeID').val("");
 		$('#timeEntrySiteName').val("");
 		$('#timeEntryJobCode').val("");
@@ -438,6 +438,14 @@ $(document).ready( function() {
 	$(document).on('click', '#showAllTimeEntries', function(event) {
 		event.preventDefault();
 		buildTimeEntryTable_User();
+	});
+
+	$(document).on('click', '#todayTimeEntries', function(event) {
+		event.preventDefault();
+		var today = new Date();
+	  var date = today.getFullYear() + '-' + ('0' + (today.getMonth()+1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
+		$('#displayTimeEntriesDate').val(date);
+		buildTimeEntryTable_User(date);
 	});
 
 	/* STAND ALONE FUNCTIONS */

@@ -36,9 +36,11 @@
                   <input class="form-control datepicker" id="displayTimeEntriesDate" value="<?php echo date('Y-m-d'); ?>">
                 </div>
                 <button class="btn btn-success" id='filterTimeEntries'>Filter</button>
+                 <button class="btn btn-info" id='todayTimeEntries'>Today</button>
                 <button class="btn btn-info" id='showAllTimeEntries'>Show All Entries</button>
               </form>
               <div class="timeEntryTable mainTables"> <!-- Time Entries--></div><?php
+          
           } else {//End non-admin user ?>
             <?php require('new_client_modal.php'); ?>
             <?php require('new_job_code_modal.php'); ?>
