@@ -431,12 +431,13 @@ $(document).ready( function() {
 	/*  */
 	$(document).on('click', '#filterTimeEntries', function(event) {
 		event.preventDefault();
-		
+		var d = $('#displayTimeEntriesDate').val();
+		buildTimeEntryTable_User( d );
 	});
 
 	$(document).on('click', '#showAllTimeEntries', function(event) {
 		event.preventDefault();
-		
+		buildTimeEntryTable_User();
 	});
 
 	/* STAND ALONE FUNCTIONS */
@@ -470,5 +471,5 @@ $(document).ready( function() {
 		}
 	});
 
-	$(function() { $(".datepicker").datepicker(); });
+	$(function() { $(".datepicker").datepicker({ dateFormat: 'yy-mm-dd' }); });
 });
