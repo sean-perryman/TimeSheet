@@ -248,7 +248,6 @@ $(document).ready( function() {
 		$('.removeEmployeeButton').removeClass("hidden");
 	});
 
-	/* ADD/REMOVE DATA FUNCTIONS */
 	/* Add Employee */
 	$(document).on("click", ".add-employee", function() {
 		var name = $('#employeeName').val();	
@@ -284,7 +283,7 @@ $(document).ready( function() {
 		}
 	});
 
-	//Need update employee function
+	//Update employee function
 	$(document).on("click", ".update-employee", function() {
 		var name = $('#employeeName').val();	
 		var phone = $('#employeePhone').val();
@@ -303,6 +302,7 @@ $(document).ready( function() {
 		});  
 	});
 
+	//New employee
 	$(document).on("click", ".new-employee", function() {
 		$('#employeeName').val("");	
 		$('#employeePhone').val("");
@@ -317,6 +317,8 @@ $(document).ready( function() {
 		$('#employeeModalButton').text('Submit');
 	});
 
+
+	/* JOB CODE */
 	/* Add Job Code */
 	$(document).on("click", ".add-job-code", function() {
 		var code = $('#newJobCode').val();	
@@ -346,8 +348,60 @@ $(document).ready( function() {
 			  buildJobCodeTable();
 			}); 
 		}
-	 });
+	});
 
+	//Update job code
+	$(document).on("click", ".update-job-code", function() { 
+		var code = $('#jobCodeCode').val();	
+		var desc = $('#jobCodeDescription').val();
+		var id = $('.removeJobCodeButton').attr('id');
+
+		$.ajax({
+		  type: "POST",
+		  url: "../utility.php",
+		  data: { action: "update_job_code", id: id, code: code, desc: desc }
+		}).done(function( msg ) {		  
+		  $("#jobCodeModal").modal("hide");
+		  displayAlert( msg, "Job Code" );
+		  buildJobCodeTable();
+		});  
+	});
+
+	//New job code
+	$(document).on("click", ".new-job-code", function() { 
+		$('#jobCodeCode').val("");	
+		$('#jobCodeDescription').val("");
+		
+		$('#jobCodeModalButton').addClass('add-job-code');
+		$('#jobCodeModalButton').removeClass('update-job-code');
+		$('.removeJobCode').addClass("hidden");
+
+		$('#jobCodeModalLabel').text('Add Employee');
+		$('#jobCodeModalButton').text('Submit');
+	});
+
+	$(document).on('click', '.detail-job-code', function() {
+		$.ajax({type: "POST", url: "../utility.php", data: { action: "get_job_code", id: this.id }}).done(function( msg ) { 
+			var json = JSON.parse(msg);
+			
+			$('#jobCodeCode').val(json[0].code);	
+			$('#jobCodeDescription').val(json[0].description);
+			
+			$('.removeJobCodeButton').attr( "id", json[0].id );
+		});
+		//Remove submit class from button
+		$('#jobCodeModalButton').removeClass('add-job-code');
+		
+		//Add update class to button
+		$('#jobCodeModalButton').addClass('update-job-code');
+
+		//Change text to update
+		$('#jobCodeModalButton').text('Update');
+		$('#jobCodeModalLabel').text('Update Job Code');
+		$('.removeJobCodeButton').removeClass("hidden");
+	});
+
+	/* CLIENT */
 	/* Add Client */
 	$(document).on("click", ".add-client", function() {
 		var client = $('#newClientSite').val();
@@ -379,7 +433,6 @@ $(document).ready( function() {
 	 });
 
 	
-
 	/* TABLE BUILDING FUNCTIONS */
 	function buildClientTable() {
 		$.ajax({type: "POST", url: "../utility.php", data: { action: "buildClientTable" }}).done(function( msg ) {
@@ -405,9 +458,9 @@ $(document).ready( function() {
 			for (var i=0; i < json.length; i++) {
 				var o = json[i];
 				finishedTable += "<tr><td><p>" + o.code + "</p></td><td><p>" + o.description + "</p></td><td>";
-				finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-job-code'>Detail</button></td></tr>";
+				finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-job-code' data-toggle='modal' data-target='#jobCodeModal'>Detail</button></td></tr>";
 			}
-			finishedTable += "</table><button class='btn btn-sm btn-success' data-toggle='modal' data-target='#newJobCodeModal'>New Job Code</button>";
+			finishedTable += "</table><button class='btn btn-sm btn-success' data-toggle='modal' data-target='#jobCodeModal'>New Job Code</button>";
 
 			$('.jobCodeTable').empty();
 			$('.jobCodeTable').append(finishedTable);

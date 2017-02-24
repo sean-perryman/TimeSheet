@@ -24,6 +24,9 @@
       case 'add_job_code':
       	add_job_code( $_POST['code'], $_POST['desc'] );
       	break;
+      case 'update_job_code':
+      	update_job_code( $_POST['id'], $_POST['code'], $_POST['desc'] );
+      	break;
       case 'rem_job_code':
       	remove_job_code( $_POST['id'] );
       	break;
@@ -59,6 +62,9 @@
       	break;
       case 'get_client':
       	echo get_client( $_POST['client'] );
+      	break;
+      case 'get_job_code':
+      	echo json_encode(get_job_code( $_POST['id'] ));
       	break;
       case 'check_for_admin':
         echo isset($_SESSION['admin']);
@@ -119,16 +125,12 @@
 			$result = mysqli_query( $link, "SELECT * FROM jobcodes WHERE id = $id" );
 		}
 
-    if (mysqli_num_rows( $result ) == 0) echo "[{'id':''}]";
-    elseif (mysqli_num_rows( $result) == 1) {
-    	echo json_encode(mysqli_fetch_assoc($result));
-    } else { 
-    	$data = array();  
-	    while ($row = mysqli_fetch_assoc($result)) {
-	    	$data[] = $row;
-	    }
-	   	return $data;
+  	$data = array();  
+    while ($row = mysqli_fetch_assoc($result)) {
+    	$data[] = $row;
     }
+   	return $data;
+    
     mysqli_close( $link );
 	}
 
@@ -244,13 +246,24 @@
 
 	function remove_job_code( $id ) {
 		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
-		if ($id == "") {
-			echo "Please enter a site name";
-		} else {
-			$result = mysqli_query( $link, "DELETE FROM jobcodes WHERE id = $id");
-			if (mysqli_num_rows($result) === 0) echo "Failure";
-			else echo "Success";
-		}
+		
+		$result = mysqli_query( $link, "DELETE FROM jobcodes WHERE id = $id");
+		if (mysqli_num_rows($result) === 0) echo "Failure";
+		else echo "Success";
+	}
+
+	function update_job_code( $id, $code, $desc ) {
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		
+		$s_id = mysqli_real_escape_string( $link, $id );
+		$s_code = mysqli_real_escape_string($link, $code);
+		$s_desc = mysqli_real_escape_string($link, $desc);
+		
+		$result = mysqli_query($link, "UPDATE jobcodes SET code='$s_code', description='$s_desc' WHERE id='$s_id'");	
+		if (!$result) echo "Failure";
+		else echo "Success";
+		
+		mysqli_close($link);
 	}
 
 	function add_time_entry( $date, $employee, $client, $job_code, $hours, $description, $finalized ) {
