@@ -286,8 +286,21 @@ $(document).ready( function() {
 
 	//Need update employee function
 	$(document).on("click", ".update-employee", function() {
+		var name = $('#employeeName').val();	
+		var phone = $('#employeePhone').val();
+		var email = $('#employeeEmail').val();	
+		var accessCode = $('#employeeAccessCode').val();
+		var id = $('.removeEmployeeButton').attr('id');
 
-		
+		$.ajax({
+		  type: "POST",
+		  url: "../utility.php",
+		  data: { action: "update_employee", id: id, name: name, phone: phone, email: email, accessCode: accessCode }
+		}).done(function( msg ) {		  
+		  $("#employeeModal").modal("hide");
+		  displayAlert( msg, "Employee" );
+		  buildEmployeeTable();
+		});  
 	});
 
 	$(document).on("click", ".new-employee", function() {
@@ -302,7 +315,6 @@ $(document).ready( function() {
 
 		$('#employeeModalLabel').text('Add Employee');
 		$('#employeeModalButton').text('Submit');
-
 	});
 
 	/* Add Job Code */

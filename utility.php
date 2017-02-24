@@ -30,6 +30,9 @@
       case 'add_employee':
       	add_employee( $_POST['name'], $_POST['phone'], $_POST['email'], $_POST['accessCode'] );
       	break;
+      case 'update_employee':
+      	update_employee( $_POST['id'], $_POST['name'], $_POST['phone'], $_POST['email'], $_POST['accessCode'] );
+      	break;
       case 'add_time_entry':
       	add_time_entry( $_POST['date'], $_POST['employee_id'], $_POST['site_name'], $_POST['job_code'], $_POST['hours'], $_POST['description'], $_POST['finalized'] );
       	break;
@@ -172,6 +175,21 @@
 			if (mysqli_num_rows($result) === 0) echo "Failure";
 			else echo "Success";
 		}
+		mysqli_close($link);
+	}
+
+	function update_employee( $id, $name, $phone, $email, $access_code ) {
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		
+		$s_id = mysqli_real_escape_string( $link, $id );
+		$s_name = mysqli_real_escape_string($link, $name);
+		$s_phone = mysqli_real_escape_string($link, $phone);
+		$s_email = mysqli_real_escape_string($link, $email);
+		$s_access_code = mysqli_real_escape_string($link, $access_code);
+		$result = mysqli_query($link, "UPDATE employees SET name='$s_name', phone='$s_phone', email='$s_email', access_code='$s_access_code' WHERE id='$s_id'");	
+		if (!$result) echo "Failure";
+		else echo "Success";
+		
 		mysqli_close($link);
 	}
 
