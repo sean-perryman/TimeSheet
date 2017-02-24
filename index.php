@@ -1,4 +1,7 @@
 <?php
+  error_reporting(E_ALL);
+  ini_set('display_errors', 1);
+  
   require('header.php');
   global $link;
   //Process access_code to user_id
@@ -16,7 +19,7 @@
         if ($row['admin'] === "1") $_SESSION['admin'] = true;
         header( "Location: /" );
       }
-    } elseif ($_POST['log_out'] === "true") {
+    } elseif (isset($_POST['log_out']) && $_POST['log_out'] === "true") {
       session_unset();
       header( "Location: /" );
     }
@@ -42,9 +45,9 @@
               <div class="timeEntryTable mainTables"> <!-- Time Entries--></div><?php
           
           } else {//End non-admin user ?>
-            <?php require('new_client_modal.php'); ?>
-            <?php require('new_job_code_modal.php'); ?>
-            <?php require('new_employee_modal.php'); ?>
+            <?php require('client_modal.php'); ?>
+            <?php require('job_code_modal.php'); ?>
+            <?php require('employee_modal.php'); ?>
             <?php require('time_entry_modal.php'); ?>
             <div id="admin-container">  
               <h2 class="alert alert-info">Time Entries</h2>

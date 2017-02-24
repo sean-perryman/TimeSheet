@@ -52,7 +52,7 @@
       	build_time_entry_table( $_POST['date'] );
       	break;
       case 'get_employee':
-      	echo get_employee($_POST['employee']);
+      	echo json_encode(get_employee($_POST['employee']));
       	break;
       case 'get_client':
       	echo get_client( $_POST['client'] );
@@ -78,16 +78,12 @@
 			$result = mysqli_query( $link, "SELECT * FROM employees WHERE id = $id" );
 		}
 
-    if (mysqli_num_rows($result) == 0) echo '[{"id":""}]';
-    elseif (mysqli_num_rows($result) == 1) {
-    	echo json_encode(mysqli_fetch_assoc($result));
-    }else { 
-    	$data = array();  
-      while ($row = mysqli_fetch_assoc($result)) {
-      	$data[] = $row;
-      }
-      return $data;
+  	$data = array();  
+    while ($row = mysqli_fetch_assoc($result)) {
+    	$data[] = $row;
     }
+    return $data;
+    
     mysqli_close($link);
 	}
 

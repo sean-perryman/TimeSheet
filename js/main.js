@@ -1,4 +1,5 @@
 $(document).ready( function() {
+	/* TIME ENTRY */
 	//Time Entry Detail
 	$(document).on('click', '.detail-time-entry', function() {
 		$.ajax({type: "POST", url: "../utility.php", data: { action: "get_time_entry", id: this.id }}).done(function( msg ) { 
@@ -150,20 +151,116 @@ $(document).ready( function() {
 		//Change text to submit
 		$('#timeEntryButton').text('Submit');
 	});
+
+	/* SUBMIT BUTTON IN THE TIME ENTRY MODAL */
+	$(document).on("click", ".time-entry-update", function() {
+		//TODO: check if updating or new record
+		//TODO: check if record is finalized; prevent update if so
+		var timeentry_id = $('#timeEntryID').val();
+		var date = $('#timeEntryDate').val();	
+		var employee_id = $('#timeEntryEmployeeID').val();
+		var site_name = $('#timeEntrySiteName').val();	
+		var job_code = $('#timeEntryJobCode').val();	
+		var hours = $('#timeEntryHours').val();
+		var description = $('#timeEntryDescription').val();
+		var finalized = 0;
+		if ($('#timeEntryFinalized').prop( "checked" )) finalized = 1;
+
+		$.ajax({
+		  type: "POST",
+		  url: "../utility.php",
+		  data: { action: "update_time_entry", timeentry_id: timeentry_id, date: date, employee_id: employee_id, site_name: site_name, job_code: job_code, hours: hours, description: description, finalized: finalized }
+		}).done(function( msg ) {		  
+		  $("#timeEntryModal").modal("hide");
+		  displayAlert( msg, "Time Entry" );
+		  var today = new Date();
+	    var date = today.getFullYear() + '-' + ('0' + (today.getMonth()+1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
+		  buildTimeEntryTable_User(date);
+		});  
+	});
+
+	/* SUBMIT BUTTON IN THE TIME ENTRY MODAL */
+	$(document).on("click", ".time-entry-submit", function() {
+		//TODO: check if updating or new record
+		//TODO: check if record is finalized; prevent update if so
+		var date = $('#timeEntryDate').val();	
+		var employee_id = $('#timeEntryEmployeeID').val();
+		var site_name = $('#timeEntrySiteName').val();	
+		var job_code = $('#timeEntryJobCode').val();	
+		var hours = $('#timeEntryHours').val();
+		var description = $('#timeEntryDescription').val();
+		var finalized = 0;
+		if ($('#timeEntryFinalized').prop( "checked" )) finalized = 1;
+
+		$.ajax({
+		  type: "POST",
+		  url: "../utility.php",
+		  data: { action: "add_time_entry", date: date, employee_id: employee_id, site_name: site_name, job_code: job_code, hours: hours, description: description, finalized: finalized }
+		}).done(function( msg ) {		  
+		  $("#timeEntryModal").modal("hide");
+		  displayAlert( msg, "Time Entry" );
+		  var today = new Date();
+	    var date = today.getFullYear() + '-' + ('0' + (today.getMonth()+1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
+		  buildTimeEntryTable_User(date);
+		});  
+	});
 	
+	/* USER TIME ENTRY VIEW FUNCTIONS */
+	$(document).on('click', '#filterTimeEntries', function(event) {
+		event.preventDefault();
+		var d = $('#displayTimeEntriesDate').val();
+		buildTimeEntryTable_User( d );
+	});
+
+	$(document).on('click', '#showAllTimeEntries', function(event) {
+		event.preventDefault();
+		buildTimeEntryTable_User();
+	});
+
+	$(document).on('click', '#todayTimeEntries', function(event) {
+		event.preventDefault();
+		var today = new Date();
+	  var date = today.getFullYear() + '-' + ('0' + (today.getMonth()+1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
+		$('#displayTimeEntriesDate').val(date);
+		buildTimeEntryTable_User(date);
+	});
+
+	/* EMPLOYEE */
+	$(document).on('click', '.detail-employee', function() {
+		$.ajax({type: "POST", url: "../utility.php", data: { action: "get_employee", employee: this.id }}).done(function( msg ) { 
+			var json = JSON.parse(msg);
+			
+			$('#employeeName').val(json[0].name);	
+			$('#employeePhone').val(json[0].phone);
+			$('#employeeEmail').val(json[0].email);
+			$('#employeeAccessCode').val(json[0].access_code);
+			$('.removeEmployeeButton').attr( "id", json[0].id );
+		});
+		//Remove submit class from button
+		$('#employeeModalButton').removeClass('add-employee');
+		
+		//Add update class to button
+		$('#employeeModalButton').addClass('update-employee');
+
+		//Change text to update
+		$('#employeeModalButton').text('Update');
+		$('#employeeModalLabel').text('Update Employee');
+		$('.removeEmployeeButton').removeClass("hidden");
+	});
+
 	/* ADD/REMOVE DATA FUNCTIONS */
 	/* Add Employee */
 	$(document).on("click", ".add-employee", function() {
-		var name = $('#newEmployeeName').val();	
-		var phone = $('#newEmployeePhone').val();
-		var email = $('#newEmployeeEmail').val();	
-		var accessCode = $('#newEmployeeAccessCode').val();
+		var name = $('#employeeName').val();	
+		var phone = $('#employeePhone').val();
+		var email = $('#employeeEmail').val();	
+		var accessCode = $('#employeeAccessCode').val();
 		$.ajax({
 		  type: "POST",
 		  url: "../utility.php",
 		  data: { action: "add_employee", name: name, phone: phone, email: email, accessCode: accessCode }
 		}).done(function( msg ) {		  
-		  $("#newEmployeeModal").modal("hide");
+		  $("#employeeModal").modal("hide");
 		  displayAlert( msg, "Employee" );
 		  buildEmployeeTable();
 		});  
@@ -173,17 +270,40 @@ $(document).ready( function() {
 	$(document).on("click", ".remove-employee", function() { 
 		//Perhaps an ajax call to the get_client function to populate a variable?
 		var c = confirm( "Please confirm you would like to delete this entry." );
+		console.log( "ID: " + this.id );
 		if (c) {
 			$.ajax({
 			  type: "POST",
 			  url: "../utility.php",
 			  data: { action: "rem_employee", id: this.id }
 			}).done(function( msg ) {
-			  displayAlert( msg, "Employee" );
-			  buildEmployeeTable();
+			  $("#employeeModal").modal("hide");
+		  	displayAlert( msg, "Employee" );
+		  	buildEmployeeTable();
 			}); 
 		}
-	 });
+	});
+
+	//Need update employee function
+	$(document).on("click", ".update-employee", function() {
+
+		
+	});
+
+	$(document).on("click", ".new-employee", function() {
+		$('#employeeName').val("");	
+		$('#employeePhone').val("");
+		$('#employeeEmail').val("");	
+		$('#employeeAccessCode').val("");
+		
+		$('#employeeModalButton').addClass('add-employee');
+		$('#employeeModalButton').removeClass('update-employee');
+		$('.removeEmployeeButton').addClass("hidden");
+
+		$('#employeeModalLabel').text('Add Employee');
+		$('#employeeModalButton').text('Submit');
+
+	});
 
 	/* Add Job Code */
 	$(document).on("click", ".add-job-code", function() {
@@ -246,58 +366,7 @@ $(document).ready( function() {
 		}
 	 });
 
-	/* SUBMIT BUTTON IN THE TIME ENTRY MODAL */
-	$(document).on("click", ".time-entry-update", function() {
-		//TODO: check if updating or new record
-		//TODO: check if record is finalized; prevent update if so
-		var timeentry_id = $('#timeEntryID').val();
-		var date = $('#timeEntryDate').val();	
-		var employee_id = $('#timeEntryEmployeeID').val();
-		var site_name = $('#timeEntrySiteName').val();	
-		var job_code = $('#timeEntryJobCode').val();	
-		var hours = $('#timeEntryHours').val();
-		var description = $('#timeEntryDescription').val();
-		var finalized = 0;
-		if ($('#timeEntryFinalized').prop( "checked" )) finalized = 1;
-
-		$.ajax({
-		  type: "POST",
-		  url: "../utility.php",
-		  data: { action: "update_time_entry", timeentry_id: timeentry_id, date: date, employee_id: employee_id, site_name: site_name, job_code: job_code, hours: hours, description: description, finalized: finalized }
-		}).done(function( msg ) {		  
-		  $("#timeEntryModal").modal("hide");
-		  displayAlert( msg, "Time Entry" );
-		  var today = new Date();
-	    var date = today.getFullYear() + '-' + ('0' + (today.getMonth()+1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
-		  buildTimeEntryTable_User(date);
-		});  
-	});
-
-	/* SUBMIT BUTTON IN THE TIME ENTRY MODAL */
-	$(document).on("click", ".time-entry-submit", function() {
-		//TODO: check if updating or new record
-		//TODO: check if record is finalized; prevent update if so
-		var date = $('#timeEntryDate').val();	
-		var employee_id = $('#timeEntryEmployeeID').val();
-		var site_name = $('#timeEntrySiteName').val();	
-		var job_code = $('#timeEntryJobCode').val();	
-		var hours = $('#timeEntryHours').val();
-		var description = $('#timeEntryDescription').val();
-		var finalized = 0;
-		if ($('#timeEntryFinalized').prop( "checked" )) finalized = 1;
-
-		$.ajax({
-		  type: "POST",
-		  url: "../utility.php",
-		  data: { action: "add_time_entry", date: date, employee_id: employee_id, site_name: site_name, job_code: job_code, hours: hours, description: description, finalized: finalized }
-		}).done(function( msg ) {		  
-		  $("#timeEntryModal").modal("hide");
-		  displayAlert( msg, "Time Entry" );
-		  var today = new Date();
-	    var date = today.getFullYear() + '-' + ('0' + (today.getMonth()+1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
-		  buildTimeEntryTable_User(date);
-		});  
-	});
+	
 
 	/* TABLE BUILDING FUNCTIONS */
 	function buildClientTable() {
@@ -345,16 +414,16 @@ $(document).ready( function() {
 				var o = json[i];
 				finishedTable += "<tr><td><p>" + o.name + "</p></td><td><p>" + o.phone + "</p></td><td>";
 				finishedTable += "<p>" + o.email + "</p></td><td>";
-				finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-time-entry'>Detail</button></td></tr>";
+				finishedTable += "<button id='" + o.id + "' class='btn btn-sm btn-info detail-employee' data-toggle='modal' data-target='#employeeModal'>Detail</button></td></tr>";
 			}
-			finishedTable += "</table><button class='btn btn-sm btn-success' data-toggle='modal' data-target='#newEmployeeModal'>New Employee</button>";
+			finishedTable += "</table><button class='new-employee btn btn-sm btn-success' data-toggle='modal' data-target='#employeeModal'>New Employee</button>";
 
 			$('.employeeTable').empty();
 			$('.employeeTable').append(finishedTable);
-			$('#newEmployeeName').val("");
-			$('#newEmployeePhone').val("");
-			$('#newEmployeeEmail').val("");
-			$('#newEmployeeAccessCode').val("");
+			$('#employeeName').val("");
+			$('#employeePhone').val("");
+			$('#employeeEmail').val("");
+			$('#employeeAccessCode').val("");
 		});
 	}
 
@@ -428,34 +497,13 @@ $(document).ready( function() {
 		});
 	}
 
-	/*  */
-	$(document).on('click', '#filterTimeEntries', function(event) {
-		event.preventDefault();
-		var d = $('#displayTimeEntriesDate').val();
-		buildTimeEntryTable_User( d );
-	});
-
-	$(document).on('click', '#showAllTimeEntries', function(event) {
-		event.preventDefault();
-		buildTimeEntryTable_User();
-	});
-
-	$(document).on('click', '#todayTimeEntries', function(event) {
-		event.preventDefault();
-		var today = new Date();
-	  var date = today.getFullYear() + '-' + ('0' + (today.getMonth()+1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
-		$('#displayTimeEntriesDate').val(date);
-		buildTimeEntryTable_User(date);
-	});
-
-	/* STAND ALONE FUNCTIONS */
+	/* MISC FUNCTIONS */
   function displayAlert( msg, messageText ) {
 		if (msg === "Success") $(function() { new PNotify({ title: 'Success!!', delay: 2000, text: messageText + " has been added successfully", type: 'success' }); });
 		else if (msg === "Failure") $(function() { new PNotify({ title: 'Error', delay: 2000, text: "Failed to add new " + messageText, type: 'error' }); });
 		else $(function() { new PNotify({ title: 'Other', delay: 10000, text: "Message: " + msg, type: 'info' }); });
 	}
 
-	/* MISC FUNCTIONS */
   function addAccordion() { //Activate accordion after the time entries tables is built
   	$('#admin-container').addClass('accordion');
 		$( ".accordion" ).accordion({ collapsible: true, active: false }); 
