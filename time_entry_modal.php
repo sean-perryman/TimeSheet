@@ -49,6 +49,7 @@
             <input type='checkbox' class='form-control' id='timeEntryFinalized'>
           </div>
           <button type="button" id="timeEntryButton" class="time-entry-submit btn btn-default">Submit</button>
+          <button type="button" class="remove-time-entry hidden btn btn-danger">Delete</button>
         </form>
       </div>
 

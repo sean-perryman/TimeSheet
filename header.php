@@ -48,7 +48,7 @@
 
           <!-- Login form -->
           <form class="navbar-form navbar-right" role="form" method="post">
-            <?php if (!$_SESSION['user_id']) { ?>
+            <?php if (!isset($_SESSION['user_id'])) { ?>
             <div class="form-group">
               <input type="password" name="accesscode" placeholder="Access Code" class="form-control">
             </div>

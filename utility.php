@@ -21,6 +21,9 @@
       case 'rem_client':
       	remove_client( $_POST['id'] );
       	break;
+      case 'update_client':
+      	update_client( $_POST['id'], $_POST['site_name'] );
+      	break;
       case 'add_job_code':
       	add_job_code( $_POST['code'], $_POST['desc'] );
       	break;
@@ -29,6 +32,12 @@
       	break;
       case 'rem_job_code':
       	remove_job_code( $_POST['id'] );
+      	break;
+      case 'rem_employee':
+      	remove_employee( $_POST['id'] );
+      	break;
+      case 'rem_time_entry':
+      	remove_time_entry( $_POST['id'] );
       	break;
       case 'add_employee':
       	add_employee( $_POST['name'], $_POST['phone'], $_POST['email'], $_POST['accessCode'] );
@@ -41,9 +50,6 @@
       	break;
       case 'update_time_entry':
       	update_time_entry( $_POST['timeentry_id'], $_POST['date'], $_POST['employee_id'], $_POST['site_name'], $_POST['job_code'], $_POST['hours'], $_POST['description'], $_POST['finalized'] );
-      	break;
-      case 'rem_employee':
-      	remove_employee( $_POST['id'] );
       	break;
       case 'buildClientTable':
       	build_client_table();
@@ -61,19 +67,25 @@
       	echo json_encode(get_employee($_POST['employee']));
       	break;
       case 'get_client':
-      	echo get_client( $_POST['client'] );
+      	echo json_encode(get_client( $_POST['client'] ));
       	break;
       case 'get_job_code':
       	echo json_encode(get_job_code( $_POST['id'] ));
       	break;
       case 'check_for_admin':
-        echo isset($_SESSION['admin']);
+        echo ( isset($_SESSION['admin']) ? "1" : "0" );
         break;
       case 'get_logged_in_user':
        	echo $_SESSION['user_id'];
        	break;
       case 'get_time_entry':
       	echo get_individual_time_entry($_POST['id']);
+      	break;
+      case 'get_time_sheet':
+      	echo json_encode( get_time_sheet( $_POST['date'], $_POST['employeeID'], $_POST['clientSiteID']) );
+      	break;
+      case 'export_time_sheet':
+      	echo json_encode( export_time_sheet( $_POST['start_date'], $_POST['finish_date'], $_POST['employeeID'], $_POST['clientSiteID']) );
       	break;
     }
 	}	
@@ -104,16 +116,12 @@
 			$result = mysqli_query( $link, "SELECT * FROM clients WHERE id = $id" );
 		}
 
-    if (mysqli_num_rows( $result ) == 0) echo "N/A";
-    elseif (mysqli_num_rows( $result) == 1) {
-    	echo json_encode(mysqli_fetch_assoc($result));
-    } else { 
-    	$data = array();  
-	    while ($row = mysqli_fetch_assoc($result)) {
-	    	$data[] = $row;
-	    }
-	   	return $data;
+    $data = array();  
+    while ($row = mysqli_fetch_assoc($result)) {
+    	$data[] = $row;
     }
+   	return $data;
+    
     mysqli_close( $link );
 	}
 
@@ -154,6 +162,32 @@
 		}
 
   	$data = array();  
+    while ($row = mysqli_fetch_assoc($result)) {
+    	$data[] = $row;
+    }
+    return $data;
+    
+    mysqli_close($link);
+	}
+
+	function get_time_sheet( $date, $employeeID, $clientSiteID ) {
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		$result = mysqli_query( $link, "SELECT * FROM timeentry WHERE employee_id = $employeeID AND client_id = $clientSiteID AND date LIKE '" . $date . "%'");
+
+    $data = array();  
+    while ($row = mysqli_fetch_assoc($result)) {
+    	$data[] = $row;
+    }
+    return $data;
+    
+    mysqli_close($link);
+	}
+
+	function export_time_sheet( $start_date, $finish_date, $employeeID, $clientSiteID ) {
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		$result = mysqli_query( $link, "SELECT * FROM timeentry WHERE employee_id = $employeeID AND client_id = $clientSiteID AND date BETWEEN '$start_date' AND '$finish_date'");
+
+    $data = array();  
     while ($row = mysqli_fetch_assoc($result)) {
     	$data[] = $row;
     }
@@ -228,6 +262,19 @@
 			if (mysqli_num_rows($result) === 0) echo "Failure";
 			else echo "Success";
 		} 
+	}
+
+	function update_client( $id, $site_name ) {
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		
+		$s_id = mysqli_real_escape_string( $link, $id );
+		$s_site_name = mysqli_real_escape_string($link, $site_name);
+		
+		$result = mysqli_query($link, "UPDATE clients SET site_name='$s_site_name' WHERE id='$s_id'");	
+		if (!$result) echo "Failure";
+		else echo "Success";
+		
+		mysqli_close($link);
 	}
 
 	function add_job_code( $code, $desc ) {
@@ -307,7 +354,13 @@
 		mysqli_close($link);
 	}
 
-	function remove_time_entry( $id ) {}
+	function remove_time_entry( $id ) {
+		$link = mysqli_connect( "localhost", "timesheet", "Pzfe24^8", "timeSheet" );
+		
+		$result = mysqli_query( $link, "DELETE FROM timeentry WHERE id = $id");
+		if (mysqli_num_rows($result) === 0) echo "Failure";
+		else echo "Success";		
+	}
 	/* End Create/Update/Delete Functions */
 
 	/* Table Building - Simple JSON return */
